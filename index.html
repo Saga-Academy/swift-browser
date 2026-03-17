@@ -24,7 +24,7 @@ border-radius:28px;
 overflow:hidden;
 position:relative;
 color:white;
-padding-top:40px;  /* already 40px – keeping as requested */
+padding-top:40px;
 box-shadow:0 30px 50px rgba(0,0,0,0.7);
 }
 
@@ -184,7 +184,6 @@ overflow:hidden;
 display:none;
 flex-direction:column;
 z-index:20;
-min-width:140px;
 }
 
 .engine-menu div{
@@ -201,7 +200,7 @@ background:rgba(255,255,255,0.1);
 display:flex;
 }
 
-/* apps grid - now with two rows */
+/* apps grid */
 .grid{
 display:grid;
 grid-template-columns:repeat(4,1fr);
@@ -228,7 +227,7 @@ justify-content:center;
 align-items:center;
 background:rgba(255,255,255,0.25);
 backdrop-filter:blur(6px);
-font-size:40px;  /* adjusted for better icon fit */
+font-size:40px;
 cursor:pointer;
 transition:0.2s;
 }
@@ -238,7 +237,6 @@ transform:scale(1.08);
 background:rgba(255,255,255,0.4);
 }
 
-/* second row of icons (added) */
 .grid-second{
 display:grid;
 grid-template-columns:repeat(4,1fr);
@@ -265,7 +263,7 @@ font-size:12px;
 opacity:0.8;
 }
 
-/* sidebar */
+/* sidebar - FIXED: higher z-index when open */
 .sidebar{
 position:absolute;
 top:0;
@@ -276,11 +274,15 @@ background:rgba(20,20,30,0.6);
 backdrop-filter:blur(20px);
 padding-top:80px;
 transition:left 0.25s ease;
-z-index:10;
+z-index:10;           /* normal = behind most content */
 }
 
-.sidebar.open{left:0;}
+.sidebar.open{
+left:0;
+z-index:999;          /* ← KEY FIX: now above search bar, engine menu, header, floating button, etc. */
+}
 
+/* menu items */
 .menuItem{
 padding:16px 22px;
 cursor:pointer;
@@ -299,7 +301,7 @@ z-index:25;
 cursor:grab;
 transition:transform 0.2s;
 user-select: none;
-touch-action: none; /* better for drag on touch */
+touch-action: none;
 }
 
 .chatbot-float:active{
@@ -314,7 +316,7 @@ transform:scale(1.1);
 width:100%;
 height:100%;
 object-fit:contain;
-pointer-events: none; /* so drag works on the container */
+pointer-events: none;
 }
 
 .chatbot-panel{
@@ -336,14 +338,8 @@ animation:slideUp 0.3s ease;
 }
 
 @keyframes slideUp{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 .chatbot-panel.open{
@@ -539,8 +535,7 @@ z-index:8;
 
 <!-- HEADER -->
 <div class="header">
-
-<i class="fas fa-bars" id="hamburgerIcon" onclick="toggleMenu()"></i>
+<i class="fas fa-bars" onclick="toggleMenu()"></i>
 
 <div class="header-center">
 <img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img" alt="logo">
@@ -548,7 +543,6 @@ z-index:8;
 </div>
 
 <i id="themeToggle" class="fas fa-sun"></i>
-
 </div>
 
 <!-- controls -->
@@ -565,8 +559,6 @@ z-index:8;
 </div>
 
 <div class="search">
-    
-
     <div class="engine-select" onclick="toggleEngineMenu()">
         🌐 <span id="currentEngine">Google</span>
     </div>
@@ -581,7 +573,7 @@ z-index:8;
 	<input id="searchInput" placeholder="Search the World Wide Web...">
 </div>
 
-<!-- apps row 1 (original) -->
+<!-- apps row 1 -->
 <div class="grid">
 <div class="appicon"><div class="iconbox"><i class="fab fa-facebook"></i></div>Facebook</div>
 <div class="appicon"><div class="iconbox"><i class="fab fa-youtube"></i></div>YouTube</div>
@@ -589,7 +581,7 @@ z-index:8;
 <div class="appicon"><div class="iconbox"><i class="fab fa-spotify"></i></div>Spotify</div>
 </div>
 
-<!-- apps row 2 (more icons) -->
+<!-- apps row 2 -->
 <div class="grid-second">
 <div class="appicon"><div class="iconbox"><i class="fab fa-twitter"></i></div>Twitter</div>
 <div class="appicon"><div class="iconbox"><i class="fab fa-tiktok"></i></div>TikTok</div>
@@ -602,7 +594,7 @@ z-index:8;
 <div class="badge">⚡ Swift AI</div>
 </div>
 
-<!-- CHATBOT FLOATING ICON AND PANEL -->
+<!-- CHATBOT -->
 <div class="chatbot-float" id="chatbotToggle">
 <img src="https://github.com/Saga-Academy/swift-browser/blob/main/RAW/ai.png?raw=true" alt="ai">
 </div>
@@ -626,35 +618,12 @@ z-index:8;
 </div>
 
 <script>
-// ========== SIDEBAR TOGGLE & CLICK OUTSIDE ==========
-const sidebar = document.getElementById('sidebar');
-const hamburger = document.getElementById('hamburgerIcon');
-const appContainer = document.querySelector('.app'); // to limit click outside detection
-
+// SIDEBAR TOGGLE
 function toggleMenu(){
-    sidebar.classList.toggle('open');
-    // optional: prevent event from bubbling if needed (handled by stopPropagation)
+    document.getElementById("sidebar").classList.toggle("open");
 }
 
-// Close sidebar when clicking outside, but not on the hamburger or sidebar itself
-document.addEventListener('click', function(event) {
-    // if sidebar is open, and click target is not sidebar, not hamburger, and not a child of sidebar
-    if (sidebar.classList.contains('open')) {
-        const isClickInsideSidebar = sidebar.contains(event.target);
-        const isClickOnHamburger = hamburger.contains(event.target);
-        
-        if (!isClickInsideSidebar && !isClickOnHamburger) {
-            sidebar.classList.remove('open');
-        }
-    }
-});
-
-// Prevent closing when interacting inside sidebar (optional but good)
-sidebar.addEventListener('click', function(event) {
-    event.stopPropagation(); // stops clicks inside sidebar from bubbling to document
-});
-
-// ========== CHATBOT FUNCTIONALITY ==========
+// CHATBOT FUNCTIONALITY
 document.addEventListener('DOMContentLoaded', function() {
     const chatbotToggle = document.getElementById('chatbotToggle');
     const chatbotPanel = document.getElementById('chatbotPanel');
@@ -666,7 +635,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let isOpen = false;
     let isLoading = false;
     
-    // Improved demo mode with contextual responses
     const demoResponses = [
         "That's interesting! Tell me more.",
         "I'm your Swift AI assistant. How can I help you browse better?",
@@ -679,21 +647,15 @@ document.addEventListener('DOMContentLoaded', function() {
         "I'm learning new things every day to assist you better!"
     ];
     
-    // Open chatbot
     chatbotToggle.addEventListener('click', function(e) {
         e.stopPropagation();
         chatbotPanel.classList.add('open');
         chatbotInput.disabled = false;
         chatbotInput.focus();
         isOpen = true;
-        if (chatbotInput.value.trim()) {
-            sendButton.disabled = false;
-        } else {
-            sendButton.disabled = true;
-        }
+        sendButton.disabled = !chatbotInput.value.trim();
     });
     
-    // Close chatbot
     closeChatbot.addEventListener('click', function(e) {
         e.stopPropagation();
         chatbotPanel.classList.remove('open');
@@ -702,14 +664,12 @@ document.addEventListener('DOMContentLoaded', function() {
         isOpen = false;
     });
     
-    // Enable/disable send button based on input
     chatbotInput.addEventListener('input', function() {
         if (isOpen && !isLoading) {
             sendButton.disabled = !this.value.trim();
         }
     });
     
-    // Handle enter key
     chatbotInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey && !sendButton.disabled && !isLoading) {
             e.preventDefault();
@@ -717,11 +677,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Send message
     sendButton.addEventListener('click', function() {
-        if (!sendButton.disabled && !isLoading) {
-            sendMessage();
-        }
+        if (!sendButton.disabled && !isLoading) sendMessage();
     });
     
     function addMessage(text, sender) {
@@ -743,31 +700,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function removeTypingIndicator() {
         const indicator = document.getElementById('typingIndicator');
-        if (indicator) {
-            indicator.remove();
-        }
+        if (indicator) indicator.remove();
     }
     
     async function sendMessage() {
         const message = chatbotInput.value.trim();
         if (!message || isLoading) return;
         
-        // Add user message
         addMessage(message, 'user');
         chatbotInput.value = '';
         sendButton.disabled = true;
         
-        // Show typing indicator
         isLoading = true;
         showTypingIndicator();
         
         try {
-            let botResponse;
-            
-            // Improved contextual demo mode
-            await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+            await new Promise(r => setTimeout(r, 800));
             
             const lowerMsg = message.toLowerCase();
+            let botResponse;
             
             if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
                 botResponse = "Hello there! 👋 How can I assist with your browsing today?";
@@ -784,7 +735,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (lowerMsg.includes('facebook') || lowerMsg.includes('instagram') || lowerMsg.includes('youtube') || lowerMsg.includes('spotify') || lowerMsg.includes('twitter') || lowerMsg.includes('tiktok') || lowerMsg.includes('snapchat') || lowerMsg.includes('pinterest')) {
                 botResponse = "You can open that app by tapping its icon in the grid below!";
             } else {
-                // Random fallback
                 const randomIndex = Math.floor(Math.random() * demoResponses.length);
                 botResponse = demoResponses[randomIndex];
             }
@@ -801,20 +751,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isOpen) {
                 chatbotInput.disabled = false;
                 chatbotInput.focus();
-                if (chatbotInput.value.trim()) {
-                    sendButton.disabled = false;
-                }
+                sendButton.disabled = !chatbotInput.value.trim();
             }
         }
     }
 });
 
-// ========== DRAGGABLE CHATBOT FLOAT ==========
+// DRAGGABLE CHATBOT FLOAT
 const dragElement = document.getElementById('chatbotToggle');
 let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
 dragElement.onmousedown = dragMouseDown;
-dragElement.ontouchstart = dragTouchStart; // { passive: false } removed, but we call preventDefault
+dragElement.ontouchstart = dragTouchStart;
 
 function dragMouseDown(e) {
     e.preventDefault();
@@ -839,13 +787,13 @@ function elementDrag(e) {
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    // set new position within app boundaries (roughly)
+    
     let newTop = dragElement.offsetTop - pos2;
     let newLeft = dragElement.offsetLeft - pos1;
-    // constraints (keep inside .app)
+    
     const appRect = document.querySelector('.app').getBoundingClientRect();
     const floatRect = dragElement.getBoundingClientRect();
-    const maxTop = appRect.height - floatRect.height - 10; // bottom padding
+    const maxTop = appRect.height - floatRect.height - 10;
     const minTop = 10;
     const maxLeft = appRect.width - floatRect.width - 10;
     const minLeft = 10;
@@ -893,7 +841,7 @@ function closeDragElement() {
     document.ontouchmove = null;
 }
 
-// ========== SEARCH & ENGINE ==========
+// SEARCH & ENGINE
 const searchInput = document.getElementById('searchInput');
 let currentEngine = "Google";
 
@@ -915,30 +863,19 @@ if (searchInput) {
 
             let url = "";
             switch(currentEngine){
-                case "Google":
-                    url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-                    break;
-                case "Bing":
-                    url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
-                    break;
-                case "Wikipedia":
-                    url = `https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/ /g, '_'))}`;
-                    break;
-                case "YouTube":
-                    url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-                    break;
-                case "DuckDuckGo":
-                    url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-                    break;
-                default:
-                    url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                case "Google": url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
+                case "Bing": url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`; break;
+                case "Wikipedia": url = `https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/ /g, '_'))}`; break;
+                case "YouTube": url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; break;
+                case "DuckDuckGo": url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`; break;
+                default: url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             }
             window.open(url, "_blank");
         }
     });
 }
 
-// ========== THEME TOGGLE ==========
+// THEME TOGGLE
 const themeToggle = document.getElementById('themeToggle');
 let isLightMode = false;
 
@@ -958,10 +895,9 @@ themeToggle.addEventListener('click', function() {
     }
 });
 
-// ========== APP ICON ACTIONS (both rows) ==========
-document.querySelectorAll('.appicon').forEach((item, index) => {
+// APP ICON ACTIONS
+document.querySelectorAll('.appicon').forEach((item) => {
     item.addEventListener('click', function() {
-        // combine both rows: first 4 original, next 4 new
         const allIcons = [...document.querySelectorAll('.appicon')];
         const idx = allIcons.indexOf(item);
         const apps = ['facebook', 'youtube', 'instagram', 'spotify', 'twitter', 'tiktok', 'snapchat', 'pinterest'];
@@ -981,31 +917,23 @@ document.querySelectorAll('.appicon').forEach((item, index) => {
     });
 });
 
-// ========== NEW TAB BUTTON ==========
+// NEW TAB BUTTON
 const newTabButtons = document.querySelectorAll('.newtab button');
 if (newTabButtons.length >= 2) {
-    newTabButtons[0].addEventListener('click', function() {
-        window.open('about:blank', '_blank');
-    });
-    newTabButtons[1].addEventListener('click', function() {
+    newTabButtons[0].addEventListener('click', () => window.open('about:blank', '_blank'));
+    newTabButtons[1].addEventListener('click', () => {
         searchInput.value = '';
         searchInput.focus();
     });
 }
 
-// ========== CLOSE ENGINE MENU WHEN CLICK OUTSIDE ==========
+// CLOSE ENGINE MENU ON OUTSIDE CLICK
 document.addEventListener("click", function(e){
     const menu = document.getElementById("engineMenu");
     const button = document.querySelector(".engine-select");
-
-    if(button && !button.contains(e.target) && menu && !menu.contains(e.target)){
+    if (button && !button.contains(e.target) && menu && !menu.contains(e.target)) {
         menu.classList.remove("open");
     }
-});
-
-// ========== PREVENT CLICK EVENTS FROM BUBBLING THROUGH OVERLAY (unused but kept) ==========
-document.getElementById('clickOverlay').addEventListener('click', function(e) {
-    // placeholder
 });
 
 </script>
