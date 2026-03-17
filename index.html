@@ -540,7 +540,7 @@ z-index:8;
 <!-- HEADER -->
 <div class="header">
 
-<i class="fas fa-bars" onclick="toggleMenu()"></i>
+<i class="fas fa-bars" id="hamburgerIcon" onclick="toggleMenu()"></i>
 
 <div class="header-center">
 <img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img" alt="logo">
@@ -626,10 +626,33 @@ z-index:8;
 </div>
 
 <script>
-// ========== SIDEBAR TOGGLE ==========
+// ========== SIDEBAR TOGGLE & CLICK OUTSIDE ==========
+const sidebar = document.getElementById('sidebar');
+const hamburger = document.getElementById('hamburgerIcon');
+const appContainer = document.querySelector('.app'); // to limit click outside detection
+
 function toggleMenu(){
-    document.getElementById("sidebar").classList.toggle("open");
+    sidebar.classList.toggle('open');
+    // optional: prevent event from bubbling if needed (handled by stopPropagation)
 }
+
+// Close sidebar when clicking outside, but not on the hamburger or sidebar itself
+document.addEventListener('click', function(event) {
+    // if sidebar is open, and click target is not sidebar, not hamburger, and not a child of sidebar
+    if (sidebar.classList.contains('open')) {
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnHamburger = hamburger.contains(event.target);
+        
+        if (!isClickInsideSidebar && !isClickOnHamburger) {
+            sidebar.classList.remove('open');
+        }
+    }
+});
+
+// Prevent closing when interacting inside sidebar (optional but good)
+sidebar.addEventListener('click', function(event) {
+    event.stopPropagation(); // stops clicks inside sidebar from bubbling to document
+});
 
 // ========== CHATBOT FUNCTIONALITY ==========
 document.addEventListener('DOMContentLoaded', function() {
@@ -791,7 +814,7 @@ const dragElement = document.getElementById('chatbotToggle');
 let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
 dragElement.onmousedown = dragMouseDown;
-dragElement.ontouchstart = dragTouchStart, { passive: false }; // for touch
+dragElement.ontouchstart = dragTouchStart; // { passive: false } removed, but we call preventDefault
 
 function dragMouseDown(e) {
     e.preventDefault();
@@ -980,7 +1003,7 @@ document.addEventListener("click", function(e){
     }
 });
 
-// ========== PREVENT CLICK EVENTS FROM BUBBLING THROUGH OVERLAY ==========
+// ========== PREVENT CLICK EVENTS FROM BUBBLING THROUGH OVERLAY (unused but kept) ==========
 document.getElementById('clickOverlay').addEventListener('click', function(e) {
     // placeholder
 });
