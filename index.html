@@ -147,6 +147,8 @@ display:flex;
 align-items:center;
 justify-content:space-between;
 backdrop-filter:blur(10px);
+position:relative;
+z-index:15;
 }
 
 .search input{
@@ -160,6 +162,43 @@ font-size:14px;
 
 .search input::placeholder{
 color:rgba(255,255,255,0.7);
+}
+
+.engine-select{
+cursor:pointer;
+padding:6px 10px;
+border-radius:12px;
+background:rgba(255,255,255,0.2);
+font-size:13px;
+white-space:nowrap;
+}
+
+.engine-menu{
+position:absolute;
+top:70px;
+right:20px;
+background:rgba(20,20,30,0.95);
+backdrop-filter:blur(20px);
+border-radius:14px;
+overflow:hidden;
+display:none;
+flex-direction:column;
+z-index:20;
+min-width:140px;
+}
+
+.engine-menu div{
+padding:12px 16px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.engine-menu div:hover{
+background:rgba(255,255,255,0.1);
+}
+
+.engine-menu.open{
+display:flex;
 }
 
 /* apps */
@@ -177,6 +216,7 @@ flex-direction:column;
 align-items:center;
 gap:6px;
 font-size:13px;
+cursor:pointer;
 }
 
 .iconbox{
@@ -488,7 +528,7 @@ z-index:8;
 <i class="fas fa-bars" onclick="toggleMenu()"></i>
 
 <div class="header-center">
-<img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img">
+<img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img" alt="logo">
 <span>SWIFT</span>
 </div>
 
@@ -509,10 +549,20 @@ z-index:8;
 <button>+</button>
 </div>
 
-<!-- search -->
 <div class="search">
-<input placeholder="Search the World Wide Web...">
-<div>🌐 Internet</div>
+    <input id="searchInput" placeholder="Search the World Wide Web...">
+
+    <div class="engine-select" onclick="toggleEngineMenu()">
+        🌐 <span id="currentEngine">Google</span>
+    </div>
+
+    <div class="engine-menu" id="engineMenu">
+        <div onclick="setEngine('Google')">Google</div>
+        <div onclick="setEngine('Bing')">Bing</div>
+        <div onclick="setEngine('Wikipedia')">Wikipedia</div>
+        <div onclick="setEngine('YouTube')">YouTube</div>
+        <div onclick="setEngine('DuckDuckGo')">DuckDuckGo</div>
+    </div>
 </div>
 
 <!-- apps -->
@@ -530,7 +580,7 @@ z-index:8;
 
 <!-- CHATBOT FLOATING ICON AND PANEL -->
 <div class="chatbot-float" id="chatbotToggle">
-<img src="https://github.com/Saga-Academy/swift-browser/blob/main/RAW/ai.png?raw=true">
+<img src="https://github.com/Saga-Academy/swift-browser/blob/main/RAW/ai.png?raw=true" alt="ai">
 </div>
 
 <div class="chatbot-panel" id="chatbotPanel">
@@ -554,7 +604,7 @@ z-index:8;
 <script>
 // ========== SIDEBAR TOGGLE ==========
 function toggleMenu(){
-document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("sidebar").classList.toggle("open");
 }
 
 // ========== CHATBOT FUNCTIONALITY ==========
@@ -569,15 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isOpen = false;
     let isLoading = false;
     
-    // FREE API endpoint (using a public echo API for demo - replace with your actual API)
-    // For a real chatbot, replace with your API endpoint
-    const API_URL = 'https://api.openai.com/v1/chat/completions'; // Replace with your API
-    const API_KEY = 'YOUR_API_KEY'; // ⚠️ IMPORTANT: Replace with your actual API key
-    
-    // Demo mode - uses simulated responses if no API key
-    const useDemoMode = true; // Set to false when you have a real API key
-    
-    // Simple responses for demo mode
+    // Improved demo mode with contextual responses
     const demoResponses = [
         "That's interesting! Tell me more.",
         "I'm your Swift AI assistant. How can I help you browse better?",
@@ -591,20 +633,22 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
     
     // Open chatbot
-    chatbotToggle.addEventListener('click', function() {
+    chatbotToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
         chatbotPanel.classList.add('open');
         chatbotInput.disabled = false;
         chatbotInput.focus();
         isOpen = true;
-        
-        // Enable send button if there's text
         if (chatbotInput.value.trim()) {
             sendButton.disabled = false;
+        } else {
+            sendButton.disabled = true;
         }
     });
     
     // Close chatbot
-    closeChatbot.addEventListener('click', function() {
+    closeChatbot.addEventListener('click', function(e) {
+        e.stopPropagation();
         chatbotPanel.classList.remove('open');
         chatbotInput.disabled = true;
         sendButton.disabled = true;
@@ -673,52 +717,31 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             let botResponse;
             
-            if (useDemoMode || !API_KEY || API_KEY === 'YOUR_API_KEY') {
-                // Demo mode - simulated responses
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate thinking
+            // Improved contextual demo mode
+            await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+            
+            const lowerMsg = message.toLowerCase();
+            
+            if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+                botResponse = "Hello there! 👋 How can I assist with your browsing today?";
+            } else if (lowerMsg.includes('search') || lowerMsg.includes('find') || lowerMsg.includes('look for')) {
+                botResponse = "You can use the search bar at the top. Just type your query and press Enter. I can also help you find things—what are you looking for?";
+            } else if (lowerMsg.includes('weather')) {
+                botResponse = "To check weather, type 'weather [city]' in the main search bar. For example: 'weather London'";
+            } else if (lowerMsg.includes('thank')) {
+                botResponse = "You're very welcome! 😊 Let me know if you need anything else.";
+            } else if (lowerMsg.includes('who are you') || lowerMsg.includes('what can you do')) {
+                botResponse = "I'm Swift AI, your intelligent browsing assistant built right into this mobile browser. I can answer questions, give browsing tips, or just chat!";
+            } else if (lowerMsg.includes('joke')) {
+                botResponse = "Why did the browser go to therapy? It had too many issues! 😄";
+            } else if (lowerMsg.includes('facebook') || lowerMsg.includes('instagram') || lowerMsg.includes('youtube') || lowerMsg.includes('spotify')) {
+                botResponse = "You can open that app by tapping its icon in the grid below!";
+            } else {
+                // Random fallback
                 const randomIndex = Math.floor(Math.random() * demoResponses.length);
                 botResponse = demoResponses[randomIndex];
-                
-                // Add some context to responses based on user message
-                if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
-                    botResponse = "Hello! How can I assist you with your browsing today?";
-                } else if (message.toLowerCase().includes('search') || message.toLowerCase().includes('find')) {
-                    botResponse = "You can use the search bar at the top to search the web. What would you like to find?";
-                } else if (message.toLowerCase().includes('weather')) {
-                    botResponse = "I can help you check the weather! Just type 'weather [city]' in the search bar.";
-                } else if (message.toLowerCase().includes('thank')) {
-                    botResponse = "You're welcome! Happy browsing! 😊";
-                } else if (message.toLowerCase().includes('who are you')) {
-                    botResponse = "I'm Swift AI, your intelligent browsing assistant built into this mobile browser!";
-                }
-            } else {
-                // Real API mode - replace with your actual API call
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
-                        messages: [
-                            {role: 'system', content: 'You are Swift AI, a helpful browsing assistant.'},
-                            {role: 'user', content: message}
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 150
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('API request failed');
-                }
-                
-                const data = await response.json();
-                botResponse = data.choices[0].message.content;
             }
             
-            // Remove typing indicator and add bot response
             removeTypingIndicator();
             addMessage(botResponse, 'bot');
             
@@ -731,82 +754,81 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isOpen) {
                 chatbotInput.disabled = false;
                 chatbotInput.focus();
-                // Only enable send if there's text
                 if (chatbotInput.value.trim()) {
                     sendButton.disabled = false;
                 }
             }
         }
     }
-    
-    // Optional: Add some quick suggestions
-    const suggestions = [
-        "What can you do?",
-        "Search the web",
-        "Tell me a joke",
-        "Weather today"
-    ];
-    
-    // You can uncomment this to add suggestion chips
-    /*
-    const suggestionsDiv = document.createElement('div');
-    suggestionsDiv.style.padding = '8px 12px';
-    suggestionsDiv.style.display = 'flex';
-    suggestionsDiv.style.gap = '8px';
-    suggestionsDiv.style.flexWrap = 'wrap';
-    suggestionsDiv.style.borderTop = '1px solid rgba(255,255,255,0.1)';
-    
-    suggestions.forEach(text => {
-        const chip = document.createElement('span');
-        chip.textContent = text;
-        chip.style.padding = '4px 10px';
-        chip.style.background = 'rgba(255,255,255,0.1)';
-        chip.style.borderRadius = '16px';
-        chip.style.fontSize = '11px';
-        chip.style.cursor = 'pointer';
-        chip.onclick = () => {
-            chatbotInput.value = text;
-            sendMessage();
-        };
-        suggestionsDiv.appendChild(chip);
-    });
-    
-    document.querySelector('.chatbot-input').before(suggestionsDiv);
-    */
 });
 
-// ========== SEARCH FUNCTIONALITY ==========
-const searchInput = document.querySelector('.search input');
+// ========== SEARCH & ENGINE ==========
+const searchInput = document.getElementById('searchInput');
+let currentEngine = "Google";
+
+function toggleEngineMenu(){
+    document.getElementById("engineMenu").classList.toggle("open");
+}
+
+function setEngine(engine){
+    currentEngine = engine;
+    document.getElementById("currentEngine").innerText = engine;
+    document.getElementById("engineMenu").classList.remove("open");
+}
+
 if (searchInput) {
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             const query = this.value.trim();
-            if (query) {
-                // Open in new tab (simulated)
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            if (!query) return;
+
+            let url = "";
+            switch(currentEngine){
+                case "Google":
+                    url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                    break;
+                case "Bing":
+                    url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+                    break;
+                case "Wikipedia":
+                    url = `https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/ /g, '_'))}`;
+                    break;
+                case "YouTube":
+                    url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+                    break;
+                case "DuckDuckGo":
+                    url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                    break;
+                default:
+                    url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             }
+            window.open(url, "_blank");
         }
     });
 }
 
-// ========== THEME TOGGLE ==========
+// ========== THEME TOGGLE (improved) ==========
 const themeToggle = document.getElementById('themeToggle');
 let isLightMode = false;
 
 themeToggle.addEventListener('click', function() {
     isLightMode = !isLightMode;
+    const app = document.querySelector('.app');
     if (isLightMode) {
-        document.querySelector('.app').style.background = '#fff';
-        document.querySelector('.app').style.color = '#000';
+        app.style.background = '#fff';
+        app.style.color = '#000';
         themeToggle.className = 'fas fa-moon';
+        // also adjust overlays for readability
+        document.querySelector('.overlay').style.background = 'rgba(255,255,255,0.2)';
     } else {
-        document.querySelector('.app').style.background = '#000';
-        document.querySelector('.app').style.color = 'white';
+        app.style.background = '#000';
+        app.style.color = 'white';
         themeToggle.className = 'fas fa-sun';
+        document.querySelector('.overlay').style.background = 'rgba(0,0,0,0.2)';
     }
 });
 
-// ========== APP ICON ACTIONS ==========
+// ========== APP ICON ACTIONS (fixed) ==========
 document.querySelectorAll('.appicon').forEach((item, index) => {
     item.addEventListener('click', function() {
         const apps = ['facebook', 'youtube', 'instagram', 'spotify'];
@@ -821,16 +843,39 @@ document.querySelectorAll('.appicon').forEach((item, index) => {
 });
 
 // ========== NEW TAB BUTTON ==========
-document.querySelector('.newtab button:first-child').addEventListener('click', function() {
-    window.open('about:blank', '_blank');
+const newTabButtons = document.querySelectorAll('.newtab button');
+if (newTabButtons.length >= 2) {
+    newTabButtons[0].addEventListener('click', function() {
+        window.open('about:blank', '_blank');
+    });
+    newTabButtons[1].addEventListener('click', function() {
+        searchInput.value = '';
+        searchInput.focus();
+    });
+}
+
+// ========== CLOSE ENGINE MENU WHEN CLICK OUTSIDE ==========
+document.addEventListener("click", function(e){
+    const menu = document.getElementById("engineMenu");
+    const button = document.querySelector(".engine-select");
+
+    if(button && !button.contains(e.target) && menu && !menu.contains(e.target)){
+        menu.classList.remove("open");
+    }
 });
 
-document.querySelector('.newtab button:last-child').addEventListener('click', function() {
-    // Simulate new tab with empty search
-    searchInput.value = '';
-    searchInput.focus();
+// ========== PREVENT CLICK EVENTS FROM BUBBLING THROUGH OVERLAY ==========
+document.getElementById('clickOverlay').addEventListener('click', function(e) {
+    // just a placeholder, can be used to close panels if needed
 });
 
+// ========== FIX HISTORY BUTTONS (they might not work if no history) ==========
+// but keep them as they are, they will work if there's history
+
+// ========== FIX: ensure chatbot input is enabled only when panel open ==========
+// already handled in chatbot logic
+
+// ========== ADD TOUCH/FOCUS improvements ==========
 </script>
 
 </body>
