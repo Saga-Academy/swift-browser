@@ -408,6 +408,7 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
             <div data-engine="YouTube">YouTube</div>
         </div>
         <input id="searchInput" placeholder="Search or type URL..." autocomplete="off">
+        <button id="searchBtn" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;padding:4px 6px;font-size:16px;display:flex;align-items:center;"><i class="fas fa-magnifying-glass"></i></button>
     </div>
 
     <!-- APPS GRID – with WhatsApp, Discord & all icons functional -->
@@ -525,26 +526,57 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
         els.messages.scrollTop = els.messages.scrollHeight;
     }
 
-    function getSmartReply(lower) {
-        if (/(hi|hello|hey|sup|yo)/i.test(lower)) return "Heyy! 👋 Kamusta diha sa Cebu?";
-        if (/(thanks|thank you|salamat)/i.test(lower)) return "Walay sapayan! 😊 Anytime~";
-        if (/(how are you|kumusta|kamusta ka)/i.test(lower)) return "Nindot ra ko diri, ikaw asa naka karon? 😏";
-        return "Haha sige, unsa pa? 😄";
-    }
+    const chatHistory = [];
 
-    function sendChatMessage() {
+    async function sendChatMessage() {
         if (!els.chatbotInput || !els.messages) return;
         const text = els.chatbotInput.value.trim();
         if (!text) return;
         addMsg(text, 'user');
         els.chatbotInput.value = '';
-        setTimeout(() => {
-            addMsg(getSmartReply(text.toLowerCase()));
-        }, 600 + Math.random() * 900);
+        els.sendBtn.disabled = true;
+
+        // Add typing indicator
+        const typing = document.createElement('div');
+        typing.className = 'message bot';
+        typing.id = 'typingIndicator';
+        typing.textContent = '…';
+        typing.style.opacity = '0.6';
+        els.messages.appendChild(typing);
+        els.messages.scrollTop = els.messages.scrollHeight;
+
+        chatHistory.push({ role: 'user', content: text });
+
+        try {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1000,
+                    system: 'You are Swift AI, a friendly and helpful assistant built into the Swift Mobile Browser. Keep responses concise and conversational. You can speak a mix of English and Bisaya/Cebuano when appropriate.',
+                    messages: chatHistory
+                })
+            });
+
+            const data = await response.json();
+            const reply = data?.content?.[0]?.text || 'Sorry, something went wrong.';
+            chatHistory.push({ role: 'assistant', content: reply });
+
+            typing.remove();
+            addMsg(reply, 'bot');
+        } catch (err) {
+            typing.remove();
+            addMsg('Oops! Connection error. Try again? 😅', 'bot');
+            chatHistory.pop(); // remove failed user message from history
+        }
+
+        els.sendBtn.disabled = false;
+        els.chatbotInput.focus();
     }
 
     if (els.sendBtn) {
-        els.sendBtn.addEventListener('click', sendChatMessage);
+        els.sendBtn.addEventListener('click', () => sendChatMessage());
     }
     if (els.chatbotInput) {
         els.chatbotInput.addEventListener('keypress', e => {
@@ -630,6 +662,16 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
     // Also ensure the inner elements (iconbox, text) don't block clicks — they don't, but just in case,
     // we make sure the pointer-events style doesn't interfere (default is fine)
     // For extra safety, set cursor: pointer on appicon (already in CSS)
+
+    // ---------- SEARCH BUTTON ----------
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const q = els.searchInput.value.trim();
+            if (!q) { els.searchInput.focus(); return; }
+            els.searchInput.dispatchEvent(Object.assign(new KeyboardEvent('keypress', {bubbles:true}), {key:'Enter'}));
+        });
+    }
 
     // ---------- NEW TAB / CLEAR ----------
     if (els.newTabBtn) {
