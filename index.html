@@ -144,6 +144,8 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
     grid-template-columns:repeat(4,1fr);
     gap:20px;
     text-align:center;
+    position:relative;
+    z-index:10;
 }
 
 .appicon {
@@ -635,28 +637,13 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
             if (e.key === 'Enter') doSearch();
         });
     }
-    // ---------- APP ICONS : GUARANTEED CLICKABLE ----------
-    // Select all elements with class 'appicon' that have a data-url attribute
-    const appIcons = document.querySelectorAll('.appicon[data-url]');
-    appIcons.forEach(el => {
-        // Remove any existing listeners to avoid duplicates (just in case)
-        el.removeEventListener('click', window._iconHandler);
-        // Define handler and store reference if needed, but for simplicity:
-        const handler = (e) => {
-            // Stop propagation to avoid triggering other overlays
+    // ---------- APP ICONS ----------
+    document.querySelectorAll('.appicon[data-url]').forEach(el => {
+        el.addEventListener('click', e => {
             e.stopPropagation();
-            const url = el.dataset.url;
-            if (url) {
-                window.open(url, '_blank');
-            }
-        };
-        el.addEventListener('click', handler);
-        // Attach also to iconbox if needed, but whole appicon works
+            window.open(el.dataset.url, '_blank');
+        });
     });
-
-    // Also ensure the inner elements (iconbox, text) don't block clicks — they don't, but just in case,
-    // we make sure the pointer-events style doesn't interfere (default is fine)
-    // For extra safety, set cursor: pointer on appicon (already in CSS)
 
     // ---------- SEARCH BUTTON ----------
     const searchBtn = document.getElementById('searchBtn');
@@ -723,13 +710,6 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
         });
     }
 
-    // Ensure all app icons are indeed clickable – double-check that dynamically added later won't miss
-    // but they're static, so fine. For WhatsApp/Discord specifically they are in the list.
-    // Log to confirm count:
-    console.log('App icons count:', document.querySelectorAll('.appicon[data-url]').length); // should be 14 or more
-
-    // One more pass: manually ensure all .appicon elements have pointer-events: auto (they do)
-    // and that no parent overlay is blocking (clickOverlay is behind z-index 8, icons have z-index higher via stacking context? They are in normal flow, above overlay because overlay is positioned but lower z-index. Good.)
 })();
 </script>
 
