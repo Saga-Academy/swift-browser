@@ -24,7 +24,7 @@ border-radius:28px;
 overflow:hidden;
 position:relative;
 color:white;
-padding-top:40px;
+padding-top:40px;  /* already 40px – keeping as requested */
 box-shadow:0 30px 50px rgba(0,0,0,0.7);
 }
 
@@ -201,12 +201,12 @@ background:rgba(255,255,255,0.1);
 display:flex;
 }
 
-/* apps */
+/* apps grid - now with two rows */
 .grid{
 display:grid;
 grid-template-columns:repeat(4,1fr);
 gap:20px;
-padding:20px;
+padding:20px 20px 10px 20px;
 text-align:center;
 }
 
@@ -228,7 +228,7 @@ justify-content:center;
 align-items:center;
 background:rgba(255,255,255,0.25);
 backdrop-filter:blur(6px);
-font-size:40px;
+font-size:40px;  /* adjusted for better icon fit */
 cursor:pointer;
 transition:0.2s;
 }
@@ -236,6 +236,15 @@ transition:0.2s;
 .iconbox:hover{
 transform:scale(1.08);
 background:rgba(255,255,255,0.4);
+}
+
+/* second row of icons (added) */
+.grid-second{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+padding:0px 20px 20px 20px;
+text-align:center;
 }
 
 /* footer */
@@ -287,8 +296,14 @@ right:20px;
 width:60px;
 height:60px;
 z-index:25;
-cursor:pointer;
+cursor:grab;
 transition:transform 0.2s;
+user-select: none;
+touch-action: none; /* better for drag on touch */
+}
+
+.chatbot-float:active{
+cursor:grabbing;
 }
 
 .chatbot-float:hover{
@@ -299,6 +314,7 @@ transform:scale(1.1);
 width:100%;
 height:100%;
 object-fit:contain;
+pointer-events: none; /* so drag works on the container */
 }
 
 .chatbot-panel{
@@ -503,7 +519,6 @@ z-index:8;
 
 </style>
 </head>
-
 <body>
 
 <div class="app">
@@ -565,12 +580,20 @@ z-index:8;
     </div>
 </div>
 
-<!-- apps -->
+<!-- apps row 1 (original) -->
 <div class="grid">
 <div class="appicon"><div class="iconbox"><i class="fab fa-facebook"></i></div>Facebook</div>
 <div class="appicon"><div class="iconbox"><i class="fab fa-youtube"></i></div>YouTube</div>
 <div class="appicon"><div class="iconbox"><i class="fab fa-instagram"></i></div>Instagram</div>
 <div class="appicon"><div class="iconbox"><i class="fab fa-spotify"></i></div>Spotify</div>
+</div>
+
+<!-- apps row 2 (more icons) -->
+<div class="grid-second">
+<div class="appicon"><div class="iconbox"><i class="fab fa-twitter"></i></div>Twitter</div>
+<div class="appicon"><div class="iconbox"><i class="fab fa-tiktok"></i></div>TikTok</div>
+<div class="appicon"><div class="iconbox"><i class="fab fa-snapchat"></i></div>Snapchat</div>
+<div class="appicon"><div class="iconbox"><i class="fab fa-pinterest"></i></div>Pinterest</div>
 </div>
 
 <!-- footer -->
@@ -734,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 botResponse = "I'm Swift AI, your intelligent browsing assistant built right into this mobile browser. I can answer questions, give browsing tips, or just chat!";
             } else if (lowerMsg.includes('joke')) {
                 botResponse = "Why did the browser go to therapy? It had too many issues! 😄";
-            } else if (lowerMsg.includes('facebook') || lowerMsg.includes('instagram') || lowerMsg.includes('youtube') || lowerMsg.includes('spotify')) {
+            } else if (lowerMsg.includes('facebook') || lowerMsg.includes('instagram') || lowerMsg.includes('youtube') || lowerMsg.includes('spotify') || lowerMsg.includes('twitter') || lowerMsg.includes('tiktok') || lowerMsg.includes('snapchat') || lowerMsg.includes('pinterest')) {
                 botResponse = "You can open that app by tapping its icon in the grid below!";
             } else {
                 // Random fallback
@@ -761,6 +784,90 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// ========== DRAGGABLE CHATBOT FLOAT ==========
+const dragElement = document.getElementById('chatbotToggle');
+let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+dragElement.onmousedown = dragMouseDown;
+dragElement.ontouchstart = dragTouchStart, { passive: false }; // for touch
+
+function dragMouseDown(e) {
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+}
+
+function dragTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    document.ontouchend = closeDragElement;
+    document.ontouchmove = elementDragTouch;
+}
+
+function elementDrag(e) {
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set new position within app boundaries (roughly)
+    let newTop = dragElement.offsetTop - pos2;
+    let newLeft = dragElement.offsetLeft - pos1;
+    // constraints (keep inside .app)
+    const appRect = document.querySelector('.app').getBoundingClientRect();
+    const floatRect = dragElement.getBoundingClientRect();
+    const maxTop = appRect.height - floatRect.height - 10; // bottom padding
+    const minTop = 10;
+    const maxLeft = appRect.width - floatRect.width - 10;
+    const minLeft = 10;
+    
+    newTop = Math.min(Math.max(newTop, minTop), maxTop);
+    newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
+    
+    dragElement.style.top = newTop + 'px';
+    dragElement.style.left = newLeft + 'px';
+    dragElement.style.bottom = 'auto';
+    dragElement.style.right = 'auto';
+}
+
+function elementDragTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    pos1 = pos3 - touch.clientX;
+    pos2 = pos4 - touch.clientY;
+    pos3 = touch.clientX;
+    pos4 = touch.clientY;
+    
+    let newTop = dragElement.offsetTop - pos2;
+    let newLeft = dragElement.offsetLeft - pos1;
+    
+    const appRect = document.querySelector('.app').getBoundingClientRect();
+    const floatRect = dragElement.getBoundingClientRect();
+    const maxTop = appRect.height - floatRect.height - 10;
+    const minTop = 10;
+    const maxLeft = appRect.width - floatRect.width - 10;
+    const minLeft = 10;
+    
+    newTop = Math.min(Math.max(newTop, minTop), maxTop);
+    newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
+    
+    dragElement.style.top = newTop + 'px';
+    dragElement.style.left = newLeft + 'px';
+    dragElement.style.bottom = 'auto';
+    dragElement.style.right = 'auto';
+}
+
+function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
+}
 
 // ========== SEARCH & ENGINE ==========
 const searchInput = document.getElementById('searchInput');
@@ -807,7 +914,7 @@ if (searchInput) {
     });
 }
 
-// ========== THEME TOGGLE (improved) ==========
+// ========== THEME TOGGLE ==========
 const themeToggle = document.getElementById('themeToggle');
 let isLightMode = false;
 
@@ -818,7 +925,6 @@ themeToggle.addEventListener('click', function() {
         app.style.background = '#fff';
         app.style.color = '#000';
         themeToggle.className = 'fas fa-moon';
-        // also adjust overlays for readability
         document.querySelector('.overlay').style.background = 'rgba(255,255,255,0.2)';
     } else {
         app.style.background = '#000';
@@ -828,17 +934,26 @@ themeToggle.addEventListener('click', function() {
     }
 });
 
-// ========== APP ICON ACTIONS (fixed) ==========
+// ========== APP ICON ACTIONS (both rows) ==========
 document.querySelectorAll('.appicon').forEach((item, index) => {
     item.addEventListener('click', function() {
-        const apps = ['facebook', 'youtube', 'instagram', 'spotify'];
+        // combine both rows: first 4 original, next 4 new
+        const allIcons = [...document.querySelectorAll('.appicon')];
+        const idx = allIcons.indexOf(item);
+        const apps = ['facebook', 'youtube', 'instagram', 'spotify', 'twitter', 'tiktok', 'snapchat', 'pinterest'];
         const urls = {
             facebook: 'https://facebook.com',
             youtube: 'https://youtube.com',
             instagram: 'https://instagram.com',
-            spotify: 'https://open.spotify.com'
+            spotify: 'https://open.spotify.com',
+            twitter: 'https://twitter.com',
+            tiktok: 'https://tiktok.com',
+            snapchat: 'https://snapchat.com',
+            pinterest: 'https://pinterest.com'
         };
-        window.open(urls[apps[index]], '_blank');
+        if (idx < apps.length) {
+            window.open(urls[apps[idx]], '_blank');
+        }
     });
 });
 
@@ -866,16 +981,9 @@ document.addEventListener("click", function(e){
 
 // ========== PREVENT CLICK EVENTS FROM BUBBLING THROUGH OVERLAY ==========
 document.getElementById('clickOverlay').addEventListener('click', function(e) {
-    // just a placeholder, can be used to close panels if needed
+    // placeholder
 });
 
-// ========== FIX HISTORY BUTTONS (they might not work if no history) ==========
-// but keep them as they are, they will work if there's history
-
-// ========== FIX: ensure chatbot input is enabled only when panel open ==========
-// already handled in chatbot logic
-
-// ========== ADD TOUCH/FOCUS improvements ==========
 </script>
 
 </body>
