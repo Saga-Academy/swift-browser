@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Swift Mobile Browser · floating chatbot</title>
+<title>Swift Mobile Browser · AI Chatbot</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -24,7 +24,7 @@ border-radius:28px;
 overflow:hidden;
 position:relative;
 color:white;
-padding-top:40px; /* ✅ added */
+padding-top:40px;
 box-shadow:0 30px 50px rgba(0,0,0,0.7);
 }
 
@@ -82,7 +82,6 @@ letter-spacing:3px;
 font-size:18px;
 }
 
-/* ✅ FIX: LOGO SIZE */
 .logo-img{
 width:24px;
 height:24px;
@@ -240,7 +239,7 @@ display:flex;
 gap:12px;
 }
 
-/* chatbot */
+/* ===== CHATBOT STYLES ===== */
 .chatbot-float{
 position:absolute;
 bottom:85px;
@@ -249,12 +248,204 @@ width:60px;
 height:60px;
 z-index:25;
 cursor:pointer;
+transition:transform 0.2s;
+}
+
+.chatbot-float:hover{
+transform:scale(1.1);
 }
 
 .chatbot-float img{
 width:100%;
 height:100%;
 object-fit:contain;
+}
+
+.chatbot-panel{
+position:absolute;
+bottom:160px;
+right:20px;
+width:320px;
+height:450px;
+background:rgba(20,20,30,0.95);
+backdrop-filter:blur(20px);
+border-radius:24px;
+z-index:30;
+display:none;
+flex-direction:column;
+overflow:hidden;
+border:1px solid rgba(255,255,255,0.1);
+box-shadow:0 10px 40px rgba(0,0,0,0.5);
+animation:slideUp 0.3s ease;
+}
+
+@keyframes slideUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.chatbot-panel.open{
+display:flex;
+}
+
+.chatbot-header{
+background:linear-gradient(135deg,#8f79ff,#7afcff);
+padding:16px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+}
+
+.chatbot-header h3{
+font-size:16px;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.chatbot-header button{
+background:none;
+border:none;
+color:white;
+font-size:20px;
+cursor:pointer;
+opacity:0.8;
+transition:0.2s;
+}
+
+.chatbot-header button:hover{
+opacity:1;
+transform:scale(1.1);
+}
+
+.chatbot-messages{
+flex:1;
+padding:16px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.message{
+max-width:85%;
+padding:10px 14px;
+border-radius:18px;
+font-size:13px;
+line-height:1.4;
+word-wrap:break-word;
+animation:messagePop 0.2s ease;
+}
+
+@keyframes messagePop{
+from{transform:scale(0.9);opacity:0;}
+to{transform:scale(1);opacity:1;}
+}
+
+.message.user{
+align-self:flex-end;
+background:linear-gradient(135deg,#8f79ff,#7afcff);
+color:white;
+border-bottom-right-radius:4px;
+}
+
+.message.bot{
+align-self:flex-start;
+background:rgba(255,255,255,0.15);
+color:white;
+border-bottom-left-radius:4px;
+}
+
+.message.error{
+align-self:center;
+background:rgba(255,80,80,0.3);
+color:#ff9999;
+font-size:11px;
+max-width:90%;
+text-align:center;
+}
+
+.typing-indicator{
+display:flex;
+gap:4px;
+padding:12px 16px;
+background:rgba(255,255,255,0.1);
+border-radius:18px;
+width:fit-content;
+}
+
+.typing-indicator span{
+width:6px;
+height:6px;
+background:rgba(255,255,255,0.5);
+border-radius:50%;
+animation:typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2){animation-delay:0.2s;}
+.typing-indicator span:nth-child(3){animation-delay:0.4s;}
+
+@keyframes typing{
+0%,60%,100%{transform:translateY(0);opacity:0.5;}
+30%{transform:translateY(-6px);opacity:1;}
+}
+
+.chatbot-input{
+padding:12px;
+background:rgba(0,0,0,0.3);
+display:flex;
+gap:8px;
+border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.chatbot-input input{
+flex:1;
+padding:10px 14px;
+border:none;
+border-radius:20px;
+background:rgba(255,255,255,0.15);
+color:white;
+font-size:13px;
+outline:none;
+}
+
+.chatbot-input input::placeholder{
+color:rgba(255,255,255,0.5);
+}
+
+.chatbot-input input:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
+
+.chatbot-input button{
+width:36px;
+height:36px;
+border:none;
+border-radius:50%;
+background:linear-gradient(135deg,#8f79ff,#7afcff);
+color:white;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:0.2s;
+}
+
+.chatbot-input button:hover:not(:disabled){
+transform:scale(1.1);
+}
+
+.chatbot-input button:disabled{
+opacity:0.5;
+cursor:not-allowed;
 }
 
 /* overlay click */
@@ -286,9 +477,9 @@ z-index:8;
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-<div class="menuItem">Bookmarks</div>
-<div class="menuItem">History</div>
-<div class="menuItem">About</div>
+<div class="menuItem"><i class="fas fa-bookmark"></i> Bookmarks</div>
+<div class="menuItem"><i class="fas fa-history"></i> History</div>
+<div class="menuItem"><i class="fas fa-info-circle"></i> About</div>
 </div>
 
 <!-- HEADER -->
@@ -334,20 +525,312 @@ z-index:8;
 
 <!-- footer -->
 <div class="footer">
-<div class="badge">⚡ Swift UI</div>
+<div class="badge">⚡ Swift AI</div>
 </div>
 
-<!-- chatbot -->
-<div class="chatbot-float">
+<!-- CHATBOT FLOATING ICON AND PANEL -->
+<div class="chatbot-float" id="chatbotToggle">
 <img src="https://github.com/Saga-Academy/swift-browser/blob/main/RAW/ai.png?raw=true">
+</div>
+
+<div class="chatbot-panel" id="chatbotPanel">
+<div class="chatbot-header">
+<h3><i class="fas fa-robot"></i> Swift AI Assistant</h3>
+<button id="closeChatbot"><i class="fas fa-times"></i></button>
+</div>
+<div class="chatbot-messages" id="chatbotMessages">
+<div class="message bot">
+👋 Hi! I'm your Swift AI assistant. Ask me anything about browsing, search the web, or just chat!
+</div>
+</div>
+<div class="chatbot-input">
+<input type="text" id="chatbotInput" placeholder="Type your message..." disabled>
+<button id="sendMessage" disabled><i class="fas fa-paper-plane"></i></button>
+</div>
 </div>
 
 </div>
 
 <script>
+// ========== SIDEBAR TOGGLE ==========
 function toggleMenu(){
 document.getElementById("sidebar").classList.toggle("open");
 }
+
+// ========== CHATBOT FUNCTIONALITY ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const chatbotPanel = document.getElementById('chatbotPanel');
+    const closeChatbot = document.getElementById('closeChatbot');
+    const chatbotInput = document.getElementById('chatbotInput');
+    const sendButton = document.getElementById('sendMessage');
+    const messagesContainer = document.getElementById('chatbotMessages');
+    
+    let isOpen = false;
+    let isLoading = false;
+    
+    // FREE API endpoint (using a public echo API for demo - replace with your actual API)
+    // For a real chatbot, replace with your API endpoint
+    const API_URL = 'https://api.openai.com/v1/chat/completions'; // Replace with your API
+    const API_KEY = 'YOUR_API_KEY'; // ⚠️ IMPORTANT: Replace with your actual API key
+    
+    // Demo mode - uses simulated responses if no API key
+    const useDemoMode = true; // Set to false when you have a real API key
+    
+    // Simple responses for demo mode
+    const demoResponses = [
+        "That's interesting! Tell me more.",
+        "I'm your Swift AI assistant. How can I help you browse better?",
+        "You can ask me to search for websites, find information, or just chat!",
+        "The weather is nice today for browsing! ☀️",
+        "Swift Browser makes your mobile experience faster and smarter.",
+        "I'm here to help you navigate the web more efficiently.",
+        "That's a great question about browsing!",
+        "You can customize your Swift Browser experience in settings.",
+        "I'm learning new things every day to assist you better!"
+    ];
+    
+    // Open chatbot
+    chatbotToggle.addEventListener('click', function() {
+        chatbotPanel.classList.add('open');
+        chatbotInput.disabled = false;
+        chatbotInput.focus();
+        isOpen = true;
+        
+        // Enable send button if there's text
+        if (chatbotInput.value.trim()) {
+            sendButton.disabled = false;
+        }
+    });
+    
+    // Close chatbot
+    closeChatbot.addEventListener('click', function() {
+        chatbotPanel.classList.remove('open');
+        chatbotInput.disabled = true;
+        sendButton.disabled = true;
+        isOpen = false;
+    });
+    
+    // Enable/disable send button based on input
+    chatbotInput.addEventListener('input', function() {
+        if (isOpen && !isLoading) {
+            sendButton.disabled = !this.value.trim();
+        }
+    });
+    
+    // Handle enter key
+    chatbotInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey && !sendButton.disabled && !isLoading) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    // Send message
+    sendButton.addEventListener('click', function() {
+        if (!sendButton.disabled && !isLoading) {
+            sendMessage();
+        }
+    });
+    
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        messageDiv.textContent = text;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function showTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.id = 'typingIndicator';
+        indicator.innerHTML = '<span></span><span></span><span></span>';
+        messagesContainer.appendChild(indicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+    
+    async function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message || isLoading) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        chatbotInput.value = '';
+        sendButton.disabled = true;
+        
+        // Show typing indicator
+        isLoading = true;
+        showTypingIndicator();
+        
+        try {
+            let botResponse;
+            
+            if (useDemoMode || !API_KEY || API_KEY === 'YOUR_API_KEY') {
+                // Demo mode - simulated responses
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate thinking
+                const randomIndex = Math.floor(Math.random() * demoResponses.length);
+                botResponse = demoResponses[randomIndex];
+                
+                // Add some context to responses based on user message
+                if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
+                    botResponse = "Hello! How can I assist you with your browsing today?";
+                } else if (message.toLowerCase().includes('search') || message.toLowerCase().includes('find')) {
+                    botResponse = "You can use the search bar at the top to search the web. What would you like to find?";
+                } else if (message.toLowerCase().includes('weather')) {
+                    botResponse = "I can help you check the weather! Just type 'weather [city]' in the search bar.";
+                } else if (message.toLowerCase().includes('thank')) {
+                    botResponse = "You're welcome! Happy browsing! 😊";
+                } else if (message.toLowerCase().includes('who are you')) {
+                    botResponse = "I'm Swift AI, your intelligent browsing assistant built into this mobile browser!";
+                }
+            } else {
+                // Real API mode - replace with your actual API call
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {role: 'system', content: 'You are Swift AI, a helpful browsing assistant.'},
+                            {role: 'user', content: message}
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 150
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                botResponse = data.choices[0].message.content;
+            }
+            
+            // Remove typing indicator and add bot response
+            removeTypingIndicator();
+            addMessage(botResponse, 'bot');
+            
+        } catch (error) {
+            console.error('Chatbot error:', error);
+            removeTypingIndicator();
+            addMessage('Sorry, I encountered an error. Please try again.', 'error');
+        } finally {
+            isLoading = false;
+            if (isOpen) {
+                chatbotInput.disabled = false;
+                chatbotInput.focus();
+                // Only enable send if there's text
+                if (chatbotInput.value.trim()) {
+                    sendButton.disabled = false;
+                }
+            }
+        }
+    }
+    
+    // Optional: Add some quick suggestions
+    const suggestions = [
+        "What can you do?",
+        "Search the web",
+        "Tell me a joke",
+        "Weather today"
+    ];
+    
+    // You can uncomment this to add suggestion chips
+    /*
+    const suggestionsDiv = document.createElement('div');
+    suggestionsDiv.style.padding = '8px 12px';
+    suggestionsDiv.style.display = 'flex';
+    suggestionsDiv.style.gap = '8px';
+    suggestionsDiv.style.flexWrap = 'wrap';
+    suggestionsDiv.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+    
+    suggestions.forEach(text => {
+        const chip = document.createElement('span');
+        chip.textContent = text;
+        chip.style.padding = '4px 10px';
+        chip.style.background = 'rgba(255,255,255,0.1)';
+        chip.style.borderRadius = '16px';
+        chip.style.fontSize = '11px';
+        chip.style.cursor = 'pointer';
+        chip.onclick = () => {
+            chatbotInput.value = text;
+            sendMessage();
+        };
+        suggestionsDiv.appendChild(chip);
+    });
+    
+    document.querySelector('.chatbot-input').before(suggestionsDiv);
+    */
+});
+
+// ========== SEARCH FUNCTIONALITY ==========
+const searchInput = document.querySelector('.search input');
+if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const query = this.value.trim();
+            if (query) {
+                // Open in new tab (simulated)
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            }
+        }
+    });
+}
+
+// ========== THEME TOGGLE ==========
+const themeToggle = document.getElementById('themeToggle');
+let isLightMode = false;
+
+themeToggle.addEventListener('click', function() {
+    isLightMode = !isLightMode;
+    if (isLightMode) {
+        document.querySelector('.app').style.background = '#fff';
+        document.querySelector('.app').style.color = '#000';
+        themeToggle.className = 'fas fa-moon';
+    } else {
+        document.querySelector('.app').style.background = '#000';
+        document.querySelector('.app').style.color = 'white';
+        themeToggle.className = 'fas fa-sun';
+    }
+});
+
+// ========== APP ICON ACTIONS ==========
+document.querySelectorAll('.appicon').forEach((item, index) => {
+    item.addEventListener('click', function() {
+        const apps = ['facebook', 'youtube', 'instagram', 'spotify'];
+        const urls = {
+            facebook: 'https://facebook.com',
+            youtube: 'https://youtube.com',
+            instagram: 'https://instagram.com',
+            spotify: 'https://open.spotify.com'
+        };
+        window.open(urls[apps[index]], '_blank');
+    });
+});
+
+// ========== NEW TAB BUTTON ==========
+document.querySelector('.newtab button:first-child').addEventListener('click', function() {
+    window.open('about:blank', '_blank');
+});
+
+document.querySelector('.newtab button:last-child').addEventListener('click', function() {
+    // Simulate new tab with empty search
+    searchInput.value = '';
+    searchInput.focus();
+});
+
 </script>
 
 </body>
