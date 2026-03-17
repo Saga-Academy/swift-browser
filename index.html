@@ -7,933 +7,583 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial;}
+* { box-sizing:border-box; margin:0; padding:0; font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif; }
 
-body{
-background:#000;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+body {
+    background:#000;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-.app{
-width:390px;
-height:844px;
-border-radius:28px;
-overflow:hidden;
-position:relative;
-color:white;
-padding-top:40px;
-box-shadow:0 30px 50px rgba(0,0,0,0.7);
+.app {
+    width:390px;
+    height:844px;
+    border-radius:28px;
+    overflow:hidden;
+    position:relative;
+    color:white;
+    padding-top:40px;
+    box-shadow:0 30px 50px rgba(0,0,0,0.7);
+    background:#000;
 }
 
-.bgvideo{
-position:absolute;
-width:100%;
-height:100%;
-object-fit:cover;
-top:0;
-left:0;
-z-index:0;
+.bgvideo {
+    position:absolute;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    top:0; left:0;
+    z-index:0;
 }
 
-.overlay{
-position:absolute;
-inset:0;
-background:rgba(0,0,0,0.2);
+.overlay { position:absolute; inset:0; background:rgba(0,0,0,0.2); z-index:1; }
+
+/* HEADER */
+.header {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    z-index:5;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-/* ===== HEADER ===== */
-.header{
-position:relative;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:16px 18px;
-z-index:5;
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(20px);
-border-bottom:1px solid rgba(255,255,255,0.1);
+.header-center {
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:600;
+    letter-spacing:3px;
+    font-size:18px;
 }
 
-.header::before{
-content:"";
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:linear-gradient(90deg,#ff7eb3,#8f79ff,#7afcff);
-opacity:0.15;
-z-index:-1;
+.logo-img { width:24px; height:24px; object-fit:contain; }
+
+/* CONTROLS & NEW TAB */
+.controls, .newtab {
+    display:flex;
+    gap:12px;
+    padding:10px 16px;
+    z-index:5;
 }
 
-/* CENTER LOGO */
-.header-center{
-position:absolute;
-left:50%;
-transform:translateX(-50%);
-display:flex;
-align-items:center;
-gap:8px;
-font-weight:600;
-letter-spacing:3px;
-font-size:18px;
+.controls button, .newtab button {
+    background:rgba(255,255,255,0.15);
+    border:none;
+    color:white;
+    padding:10px 12px;
+    border-radius:14px;
+    cursor:pointer;
+    backdrop-filter:blur(4px);
 }
 
-.logo-img{
-width:24px;
-height:24px;
-object-fit:contain;
-display:block;
+.newtab button:first-child {
+    background:#8f79ff;
+    font-weight:600;
+    box-shadow:0 6px 12px rgba(0,0,0,0.4);
 }
 
-/* ICONS */
-.header i{
-font-size:18px;
-cursor:pointer;
-opacity:0.85;
-transition:0.2s;
+/* SEARCH */
+.search {
+    margin:14px 16px;
+    background:rgba(255,255,255,0.2);
+    border-radius:28px;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    backdrop-filter:blur(10px);
+    position:relative;
+    z-index:15;
 }
 
-.header i:hover{
-opacity:1;
-transform:scale(1.1);
+.search input {
+    background:transparent;
+    border:none;
+    outline:none;
+    color:white;
+    width:100%;
+    font-size:14px;
 }
 
-/* controls */
-.controls{
-display:flex;
-gap:12px;
-padding:10px 16px;
+.search input::placeholder { color:rgba(255,255,255,0.7); }
+
+.engine-select {
+    cursor:pointer;
+    padding:6px 10px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.2);
+    font-size:13px;
+    white-space:nowrap;
 }
 
-.controls button{
-background:rgba(255,255,255,0.15);
-border:none;
-color:white;
-padding:10px 12px;
-border-radius:14px;
-cursor:pointer;
-backdrop-filter:blur(4px);
+.engine-menu {
+    position:absolute;
+    top:70px;
+    right:20px;
+    background:rgba(20,20,30,0.95);
+    backdrop-filter:blur(20px);
+    border-radius:14px;
+    overflow:hidden;
+    display:none;
+    flex-direction:column;
+    z-index:20;
+    min-width:160px;
 }
 
-/* new tab */
-.newtab{
-padding:10px 16px;
-display:flex;
-gap:10px;
+.engine-menu div {
+    padding:12px 16px;
+    cursor:pointer;
 }
 
-.newtab button{
-border:none;
-padding:10px 16px;
-border-radius:14px;
-background:#8f79ff;
-color:white;
-font-weight:600;
-cursor:pointer;
-box-shadow:0 6px 12px rgba(0,0,0,0.4);
+.engine-menu div:hover { background:rgba(255,255,255,0.1); }
+
+.engine-menu.open { display:flex; }
+
+/* APPS GRID */
+.grid-container {
+    padding:20px 20px 80px 20px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    text-align:center;
 }
 
-/* search */
-.search{
-margin:14px 16px;
-background:rgba(255,255,255,0.2);
-border-radius:28px;
-padding:14px 18px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-backdrop-filter:blur(10px);
-position:relative;
-z-index:15;
+.appicon {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    cursor:pointer;
 }
 
-.search input{
-background:transparent;
-border:none;
-outline:none;
-color:white;
-width:100%;
-font-size:14px;
+.iconbox {
+    width:58px;
+    height:58px;
+    border-radius:18px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(6px);
+    font-size:36px;
+    transition:0.2s;
 }
 
-.search input::placeholder{
-color:rgba(255,255,255,0.7);
+.iconbox:hover {
+    transform:scale(1.08);
+    background:rgba(255,255,255,0.45);
 }
 
-.engine-select{
-cursor:pointer;
-padding:6px 10px;
-border-radius:12px;
-background:rgba(255,255,255,0.2);
-font-size:13px;
-white-space:nowrap;
+/* FOOTER */
+.footer {
+    position:absolute;
+    bottom:16px;
+    left:0; right:0;
+    display:flex;
+    justify-content:center;
+    z-index:5;
 }
 
-.engine-menu{
-position:absolute;
-top:70px;
-right:20px;
-background:rgba(20,20,30,0.95);
-backdrop-filter:blur(20px);
-border-radius:14px;
-overflow:hidden;
-display:none;
-flex-direction:column;
-z-index:20;
+.badge {
+    background:rgba(0,0,0,0.7);
+    padding:8px 14px;
+    border-radius:18px;
+    font-size:12px;
+    backdrop-filter:blur(4px);
 }
 
-.engine-menu div{
-padding:12px 16px;
-cursor:pointer;
-transition:0.2s;
+/* SIDEBAR */
+.sidebar {
+    position:absolute;
+    top:0; left:-280px;
+    width:280px;
+    height:100%;
+    backdrop-filter:blur(20px);
+    transition:left 0.28s ease;
+    z-index:999;
+    overflow-y:auto;
 }
 
-.engine-menu div:hover{
-background:rgba(255,255,255,0.1);
+.sidebar.open { left:0; }
+
+.sidebar-content {
+    padding:40px 0 80px 0;
 }
 
-.engine-menu.open{
-display:flex;
+.menuItem {
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    font-size:15px;
+    transition:background 0.18s;
 }
 
-/* apps grid */
-.grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-padding:20px 20px 10px 20px;
-text-align:center;
+.menuItem:hover { background:rgba(255,255,255,0.08); }
+
+/* CHATBOT */
+.chatbot-float {
+    position:absolute;
+    bottom:85px;
+    right:20px;
+    width:64px;
+    height:64px;
+    z-index:25;
+    cursor:pointer;
+    transition:transform 0.2s;
 }
 
-.appicon{
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:6px;
-font-size:13px;
-cursor:pointer;
+.chatbot-float:hover { transform:scale(1.1); }
+
+.chatbot-float img { width:100%; height:100%; object-fit:contain; }
+
+.chatbot-panel {
+    position:absolute;
+    bottom:160px;
+    right:16px;
+    width:340px;
+    height:480px;
+    background:rgba(20,20,30,0.96);
+    backdrop-filter:blur(20px);
+    border-radius:24px;
+    z-index:30;
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.12);
+    box-shadow:0 10px 40px rgba(0,0,0,0.6);
 }
 
-.iconbox{
-width:58px;
-height:58px;
-border-radius:18px;
-display:flex;
-justify-content:center;
-align-items:center;
-background:rgba(255,255,255,0.25);
-backdrop-filter:blur(6px);
-font-size:40px;
-cursor:pointer;
-transition:0.2s;
+.chatbot-panel.open { display:flex; }
+
+.chatbot-header {
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.iconbox:hover{
-transform:scale(1.08);
-background:rgba(255,255,255,0.4);
+.chatbot-messages {
+    flex:1;
+    padding:16px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
 
-.grid-second{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-padding:0px 20px 20px 20px;
-text-align:center;
+.message {
+    max-width:80%;
+    padding:10px 14px;
+    border-radius:18px;
+    font-size:14px;
+    line-height:1.4;
 }
 
-/* footer */
-.footer{
-position:absolute;
-bottom:16px;
-left:0;
-right:0;
-display:flex;
-justify-content:center;
+.message.user {
+    align-self:flex-end;
+    background:linear-gradient(135deg,#667eea,#764ba2);
 }
 
-.badge{
-background:black;
-padding:8px 14px;
-border-radius:18px;
-font-size:12px;
-opacity:0.8;
+.message.bot {
+    align-self:flex-start;
+    background:rgba(255,255,255,0.15);
 }
 
-/* sidebar - FIXED: higher z-index when open */
-.sidebar{
-position:absolute;
-top:0;
-left:-260px;
-width:260px;
-height:100%;
-background:rgba(20,20,30,0.6);
-backdrop-filter:blur(20px);
-padding-top:80px;
-transition:left 0.25s ease;
-z-index:10;           /* normal = behind most content */
+.chatbot-input {
+    padding:12px;
+    background:rgba(0,0,0,0.3);
+    display:flex;
+    gap:8px;
+    border-top:1px solid rgba(255,255,255,0.1);
 }
 
-.sidebar.open{
-left:0;
-z-index:999;          /* ← KEY FIX: now above search bar, engine menu, header, floating button, etc. */
+.chatbot-input input {
+    flex:1;
+    padding:10px 14px;
+    border:none;
+    border-radius:20px;
+    background:rgba(255,255,255,0.15);
+    color:white;
+    outline:none;
 }
 
-/* menu items */
-.menuItem{
-padding:16px 22px;
-cursor:pointer;
-display:flex;
-gap:12px;
+.chatbot-input button {
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:50%;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    cursor:pointer;
+    font-size:18px;
 }
 
-/* ===== CHATBOT STYLES ===== */
-.chatbot-float{
-position:absolute;
-bottom:85px;
-right:20px;
-width:60px;
-height:60px;
-z-index:25;
-cursor:grab;
-transition:transform 0.2s;
-user-select: none;
-touch-action: none;
+/* OVERLAY */
+#clickOverlay {
+    position:absolute;
+    inset:0;
+    display:none;
+    z-index:8;
+    background:rgba(0,0,0,0.15);
 }
 
-.chatbot-float:active{
-cursor:grabbing;
-}
-
-.chatbot-float:hover{
-transform:scale(1.1);
-}
-
-.chatbot-float img{
-width:100%;
-height:100%;
-object-fit:contain;
-pointer-events: none;
-}
-
-.chatbot-panel{
-position:absolute;
-bottom:160px;
-right:20px;
-width:320px;
-height:450px;
-background:rgba(20,20,30,0.95);
-backdrop-filter:blur(20px);
-border-radius:24px;
-z-index:30;
-display:none;
-flex-direction:column;
-overflow:hidden;
-border:1px solid rgba(255,255,255,0.1);
-box-shadow:0 10px 40px rgba(0,0,0,0.5);
-animation:slideUp 0.3s ease;
-}
-
-@keyframes slideUp{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-.chatbot-panel.open{
-display:flex;
-}
-
-.chatbot-header{
-background:linear-gradient(135deg,#8f79ff,#7afcff);
-padding:16px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-color:white;
-}
-
-.chatbot-header h3{
-font-size:16px;
-display:flex;
-align-items:center;
-gap:8px;
-}
-
-.chatbot-header button{
-background:none;
-border:none;
-color:white;
-font-size:20px;
-cursor:pointer;
-opacity:0.8;
-transition:0.2s;
-}
-
-.chatbot-header button:hover{
-opacity:1;
-transform:scale(1.1);
-}
-
-.chatbot-messages{
-flex:1;
-padding:16px;
-overflow-y:auto;
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-.message{
-max-width:85%;
-padding:10px 14px;
-border-radius:18px;
-font-size:13px;
-line-height:1.4;
-word-wrap:break-word;
-animation:messagePop 0.2s ease;
-}
-
-@keyframes messagePop{
-from{transform:scale(0.9);opacity:0;}
-to{transform:scale(1);opacity:1;}
-}
-
-.message.user{
-align-self:flex-end;
-background:linear-gradient(135deg,#8f79ff,#7afcff);
-color:white;
-border-bottom-right-radius:4px;
-}
-
-.message.bot{
-align-self:flex-start;
-background:rgba(255,255,255,0.15);
-color:white;
-border-bottom-left-radius:4px;
-}
-
-.message.error{
-align-self:center;
-background:rgba(255,80,80,0.3);
-color:#ff9999;
-font-size:11px;
-max-width:90%;
-text-align:center;
-}
-
-.typing-indicator{
-display:flex;
-gap:4px;
-padding:12px 16px;
-background:rgba(255,255,255,0.1);
-border-radius:18px;
-width:fit-content;
-}
-
-.typing-indicator span{
-width:6px;
-height:6px;
-background:rgba(255,255,255,0.5);
-border-radius:50%;
-animation:typing 1.4s infinite;
-}
-
-.typing-indicator span:nth-child(2){animation-delay:0.2s;}
-.typing-indicator span:nth-child(3){animation-delay:0.4s;}
-
-@keyframes typing{
-0%,60%,100%{transform:translateY(0);opacity:0.5;}
-30%{transform:translateY(-6px);opacity:1;}
-}
-
-.chatbot-input{
-padding:12px;
-background:rgba(0,0,0,0.3);
-display:flex;
-gap:8px;
-border-top:1px solid rgba(255,255,255,0.1);
-}
-
-.chatbot-input input{
-flex:1;
-padding:10px 14px;
-border:none;
-border-radius:20px;
-background:rgba(255,255,255,0.15);
-color:white;
-font-size:13px;
-outline:none;
-}
-
-.chatbot-input input::placeholder{
-color:rgba(255,255,255,0.5);
-}
-
-.chatbot-input input:disabled{
-opacity:0.5;
-cursor:not-allowed;
-}
-
-.chatbot-input button{
-width:36px;
-height:36px;
-border:none;
-border-radius:50%;
-background:linear-gradient(135deg,#8f79ff,#7afcff);
-color:white;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-transition:0.2s;
-}
-
-.chatbot-input button:hover:not(:disabled){
-transform:scale(1.1);
-}
-
-.chatbot-input button:disabled{
-opacity:0.5;
-cursor:not-allowed;
-}
-
-/* overlay click */
-#clickOverlay{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-display:none;
-z-index:8;
-}
-
-#clickOverlay.active{display:block;}
-
+#clickOverlay.active { display:block; }
 </style>
 </head>
 <body>
 
 <div class="app">
 
-<video class="bgvideo" autoplay muted loop playsinline>
-<source src="https://raw.githubusercontent.com/Saga-Academy/swift-browser/main/RAW/beach05.mp4">
-</video>
+    <video class="bgvideo" autoplay muted loop playsinline>
+        <source src="https://raw.githubusercontent.com/Saga-Academy/swift-browser/main/RAW/beach05.mp4">
+    </video>
 
-<div class="overlay"></div>
-<div id="clickOverlay"></div>
+    <div class="overlay"></div>
+    <div id="clickOverlay"></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-<div class="menuItem"><i class="fas fa-bookmark"></i> Bookmarks</div>
-<div class="menuItem"><i class="fas fa-history"></i> History</div>
-<div class="menuItem"><i class="fas fa-info-circle"></i> About</div>
-</div>
-
-<!-- HEADER -->
-<div class="header">
-<i class="fas fa-bars" onclick="toggleMenu()"></i>
-
-<div class="header-center">
-<img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img" alt="logo">
-<span>SWIFT</span>
-</div>
-
-<i id="themeToggle" class="fas fa-sun"></i>
-</div>
-
-<!-- controls -->
-<div class="controls">
-<button onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
-<button onclick="history.forward()"><i class="fas fa-arrow-right"></i></button>
-<button onclick="location.reload()"><i class="fas fa-rotate"></i></button>
-</div>
-
-<!-- new tab -->
-<div class="newtab">
-<button>New Tab</button>
-<button>+</button>
-</div>
-
-<div class="search">
-    <div class="engine-select" onclick="toggleEngineMenu()">
-        🌐 <span id="currentEngine">Google</span>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <div class="menuItem"><i class="fas fa-bookmark"></i> Bookmarks</div>
+            <div class="menuItem"><i class="fas fa-history"></i> History</div>
+            <div class="menuItem"><i class="fas fa-download"></i> Downloads</div>
+            <div class="menuItem"><i class="fas fa-cog"></i> Settings</div>
+            <div class="menuItem"><i class="fas fa-info-circle"></i> About</div>
+        </div>
     </div>
 
-    <div class="engine-menu" id="engineMenu">
-        <div onclick="setEngine('Google')">Google</div>
-        <div onclick="setEngine('Bing')">Bing</div>
-        <div onclick="setEngine('Wikipedia')">Wikipedia</div>
-        <div onclick="setEngine('YouTube')">YouTube</div>
-        <div onclick="setEngine('DuckDuckGo')">DuckDuckGo</div>
+    <!-- HEADER -->
+    <div class="header">
+        <i class="fas fa-bars" id="menuToggle"></i>
+        <div class="header-center">
+            <img src="https://customer-assets.emergentagent.com/job_swift-ai-browser/artifacts/djtirug7_60527.png" class="logo-img" alt="logo">
+            <span>SWIFT</span>
+        </div>
+        <i id="themeToggle" class="fas fa-sun"></i>
     </div>
-	<input id="searchInput" placeholder="Search the World Wide Web...">
-</div>
 
-<!-- apps row 1 -->
-<div class="grid">
-<div class="appicon"><div class="iconbox"><i class="fab fa-facebook"></i></div>Facebook</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-youtube"></i></div>YouTube</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-instagram"></i></div>Instagram</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-spotify"></i></div>Spotify</div>
-</div>
+    <!-- CONTROLS -->
+    <div class="controls">
+        <button><i class="fas fa-arrow-left"></i></button>
+        <button><i class="fas fa-arrow-right"></i></button>
+        <button><i class="fas fa-rotate"></i></button>
+    </div>
 
-<!-- apps row 2 -->
-<div class="grid-second">
-<div class="appicon"><div class="iconbox"><i class="fab fa-twitter"></i></div>Twitter</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-tiktok"></i></div>TikTok</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-snapchat"></i></div>Snapchat</div>
-<div class="appicon"><div class="iconbox"><i class="fab fa-pinterest"></i></div>Pinterest</div>
-</div>
+    <!-- NEW TAB -->
+    <div class="newtab">
+        <button id="newTabBtn">New Tab</button>
+        <button id="clearBtn">+</button>
+    </div>
 
-<!-- footer -->
-<div class="footer">
-<div class="badge">⚡ Swift AI</div>
-</div>
+    <!-- SEARCH -->
+    <div class="search">
+        <div class="engine-select" id="engineSelect">
+            🌐 <span id="currentEngine">Google</span>
+        </div>
+        <div class="engine-menu" id="engineMenu">
+            <div data-engine="Google">Google</div>
+            <div data-engine="Bing">Bing</div>
+            <div data-engine="DuckDuckGo">DuckDuckGo</div>
+            <div data-engine="YouTube">YouTube</div>
+            <div data-engine="Wikipedia">Wikipedia</div>
+        </div>
+        <input id="searchInput" placeholder="Search or type URL..." autocomplete="off">
+    </div>
 
-<!-- CHATBOT -->
-<div class="chatbot-float" id="chatbotToggle">
-<img src="https://github.com/Saga-Academy/swift-browser/blob/main/RAW/ai.png?raw=true" alt="ai">
-</div>
+    <!-- APPS GRID – all clickable -->
+    <div class="grid-container">
+        <div class="appicon" data-url="https://www.facebook.com"><div class="iconbox"><i class="fab fa-facebook-f"></i></div><div>Facebook</div></div>
+        <div class="appicon" data-url="https://www.youtube.com"><div class="iconbox"><i class="fab fa-youtube"></i></div><div>YouTube</div></div>
+        <div class="appicon" data-url="https://www.instagram.com"><div class="iconbox"><i class="fab fa-instagram"></i></div><div>Instagram</div></div>
+        <div class="appicon" data-url="https://open.spotify.com"><div class="iconbox"><i class="fab fa-spotify"></i></div><div>Spotify</div></div>
 
-<div class="chatbot-panel" id="chatbotPanel">
-<div class="chatbot-header">
-<h3><i class="fas fa-robot"></i> Swift AI Assistant</h3>
-<button id="closeChatbot"><i class="fas fa-times"></i></button>
-</div>
-<div class="chatbot-messages" id="chatbotMessages">
-<div class="message bot">
-👋 Hi! I'm your Swift AI assistant. Ask me anything about browsing, search the web, or just chat!
-</div>
-</div>
-<div class="chatbot-input">
-<input type="text" id="chatbotInput" placeholder="Type your message..." disabled>
-<button id="sendMessage" disabled><i class="fas fa-paper-plane"></i></button>
-</div>
-</div>
+        <div class="appicon" data-url="https://x.com"><div class="iconbox"><i class="fab fa-x-twitter"></i></div><div>X</div></div>
+        <div class="appicon" data-url="https://www.tiktok.com"><div class="iconbox"><i class="fab fa-tiktok"></i></div><div>TikTok</div></div>
+        <div class="appicon" data-url="https://www.snapchat.com"><div class="iconbox"><i class="fab fa-snapchat"></i></div><div>Snapchat</div></div>
+        <div class="appicon" data-url="https://www.pinterest.com"><div class="iconbox"><i class="fab fa-pinterest"></i></div><div>Pinterest</div></div>
+
+        <div class="appicon" data-url="https://www.reddit.com"><div class="iconbox"><i class="fab fa-reddit"></i></div><div>Reddit</div></div>
+        <div class="appicon" data-url="https://www.linkedin.com"><div class="iconbox"><i class="fab fa-linkedin-in"></i></div><div>LinkedIn</div></div>
+        <div class="appicon" data-url="https://news.google.com"><div class="iconbox"><i class="fas fa-newspaper"></i></div><div>News</div></div>
+        <div class="appicon" data-url="https://store.steampowered.com"><div class="iconbox"><i class="fas fa-gamepad"></i></div><div>Games</div></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="badge">⚡ Swift Browser</div>
+    </div>
+
+    <!-- CHATBOT -->
+    <div class="chatbot-float" id="chatbotToggle">
+        <img src="https://github.com/Saga-Academy/swift-browser/raw/main/RAW/ai.png" alt="AI">
+    </div>
+
+    <div class="chatbot-panel" id="chatbotPanel">
+        <div class="chatbot-header">
+            <h3><i class="fas fa-robot"></i> Swift AI</h3>
+            <button id="closeChatbot">×</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot">Hi! I'm your Swift AI assistant. How can I help today?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Type a message...">
+            <button id="sendBtn">➤</button>
+        </div>
+    </div>
 
 </div>
 
 <script>
-// SIDEBAR TOGGLE
-function toggleMenu(){
-    document.getElementById("sidebar").classList.toggle("open");
-}
+// ────────────────────────────────────────────────
+// DOM elements
+const sidebar       = document.getElementById('sidebar');
+const overlay       = document.getElementById('clickOverlay');
+const menuToggle    = document.getElementById('menuToggle');
+const chatbotToggle = document.getElementById('chatbotToggle');
+const chatbotPanel  = document.getElementById('chatbotPanel');
+const closeChatbot  = document.getElementById('closeChatbot');
+const chatbotInput  = document.getElementById('chatbotInput');
+const sendBtn       = document.getElementById('sendBtn');
+const messages      = document.getElementById('chatbotMessages');
+const searchInput   = document.getElementById('searchInput');
+const engineSelect  = document.getElementById('engineSelect');
+const engineMenu    = document.getElementById('engineMenu');
+const currentEngine = document.getElementById('currentEngine');
 
-// CHATBOT FUNCTIONALITY
-document.addEventListener('DOMContentLoaded', function() {
-    const chatbotToggle = document.getElementById('chatbotToggle');
-    const chatbotPanel = document.getElementById('chatbotPanel');
-    const closeChatbot = document.getElementById('closeChatbot');
-    const chatbotInput = document.getElementById('chatbotInput');
-    const sendButton = document.getElementById('sendMessage');
-    const messagesContainer = document.getElementById('chatbotMessages');
-    
-    let isOpen = false;
-    let isLoading = false;
-    
-    const demoResponses = [
-        "That's interesting! Tell me more.",
-        "I'm your Swift AI assistant. How can I help you browse better?",
-        "You can ask me to search for websites, find information, or just chat!",
-        "The weather is nice today for browsing! ☀️",
-        "Swift Browser makes your mobile experience faster and smarter.",
-        "I'm here to help you navigate the web more efficiently.",
-        "That's a great question about browsing!",
-        "You can customize your Swift Browser experience in settings.",
-        "I'm learning new things every day to assist you better!"
-    ];
-    
-    chatbotToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        chatbotPanel.classList.add('open');
-        chatbotInput.disabled = false;
+// ────────────────────────────────────────────────
+// Sidebar toggle + outside click close
+menuToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', sidebar.classList.contains('open'));
+});
+
+overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+    engineMenu.classList.remove('open');
+});
+
+sidebar.addEventListener('click', e => e.stopPropagation());
+
+// ────────────────────────────────────────────────
+// Chatbot open / close / send
+chatbotToggle.addEventListener('click', () => {
+    chatbotPanel.classList.toggle('open');
+    if (chatbotPanel.classList.contains('open')) {
         chatbotInput.focus();
-        isOpen = true;
-        sendButton.disabled = !chatbotInput.value.trim();
-    });
-    
-    closeChatbot.addEventListener('click', function(e) {
-        e.stopPropagation();
-        chatbotPanel.classList.remove('open');
-        chatbotInput.disabled = true;
-        sendButton.disabled = true;
-        isOpen = false;
-    });
-    
-    chatbotInput.addEventListener('input', function() {
-        if (isOpen && !isLoading) {
-            sendButton.disabled = !this.value.trim();
-        }
-    });
-    
-    chatbotInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey && !sendButton.disabled && !isLoading) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    
-    sendButton.addEventListener('click', function() {
-        if (!sendButton.disabled && !isLoading) sendMessage();
-    });
-    
-    function addMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}`;
-        messageDiv.textContent = text;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
-    function showTypingIndicator() {
-        const indicator = document.createElement('div');
-        indicator.className = 'typing-indicator';
-        indicator.id = 'typingIndicator';
-        indicator.innerHTML = '<span></span><span></span><span></span>';
-        messagesContainer.appendChild(indicator);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
-    function removeTypingIndicator() {
-        const indicator = document.getElementById('typingIndicator');
-        if (indicator) indicator.remove();
-    }
-    
-    async function sendMessage() {
-        const message = chatbotInput.value.trim();
-        if (!message || isLoading) return;
-        
-        addMessage(message, 'user');
-        chatbotInput.value = '';
-        sendButton.disabled = true;
-        
-        isLoading = true;
-        showTypingIndicator();
-        
-        try {
-            await new Promise(r => setTimeout(r, 800));
-            
-            const lowerMsg = message.toLowerCase();
-            let botResponse;
-            
-            if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
-                botResponse = "Hello there! 👋 How can I assist with your browsing today?";
-            } else if (lowerMsg.includes('search') || lowerMsg.includes('find') || lowerMsg.includes('look for')) {
-                botResponse = "You can use the search bar at the top. Just type your query and press Enter. I can also help you find things—what are you looking for?";
-            } else if (lowerMsg.includes('weather')) {
-                botResponse = "To check weather, type 'weather [city]' in the main search bar. For example: 'weather London'";
-            } else if (lowerMsg.includes('thank')) {
-                botResponse = "You're very welcome! 😊 Let me know if you need anything else.";
-            } else if (lowerMsg.includes('who are you') || lowerMsg.includes('what can you do')) {
-                botResponse = "I'm Swift AI, your intelligent browsing assistant built right into this mobile browser. I can answer questions, give browsing tips, or just chat!";
-            } else if (lowerMsg.includes('joke')) {
-                botResponse = "Why did the browser go to therapy? It had too many issues! 😄";
-            } else if (lowerMsg.includes('facebook') || lowerMsg.includes('instagram') || lowerMsg.includes('youtube') || lowerMsg.includes('spotify') || lowerMsg.includes('twitter') || lowerMsg.includes('tiktok') || lowerMsg.includes('snapchat') || lowerMsg.includes('pinterest')) {
-                botResponse = "You can open that app by tapping its icon in the grid below!";
-            } else {
-                const randomIndex = Math.floor(Math.random() * demoResponses.length);
-                botResponse = demoResponses[randomIndex];
-            }
-            
-            removeTypingIndicator();
-            addMessage(botResponse, 'bot');
-            
-        } catch (error) {
-            console.error('Chatbot error:', error);
-            removeTypingIndicator();
-            addMessage('Sorry, I encountered an error. Please try again.', 'error');
-        } finally {
-            isLoading = false;
-            if (isOpen) {
-                chatbotInput.disabled = false;
-                chatbotInput.focus();
-                sendButton.disabled = !chatbotInput.value.trim();
-            }
-        }
     }
 });
 
-// DRAGGABLE CHATBOT FLOAT
-const dragElement = document.getElementById('chatbotToggle');
-let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-dragElement.onmousedown = dragMouseDown;
-dragElement.ontouchstart = dragTouchStart;
-
-function dragMouseDown(e) {
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-}
-
-function dragTouchStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    pos3 = touch.clientX;
-    pos4 = touch.clientY;
-    document.ontouchend = closeDragElement;
-    document.ontouchmove = elementDragTouch;
-}
-
-function elementDrag(e) {
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    
-    let newTop = dragElement.offsetTop - pos2;
-    let newLeft = dragElement.offsetLeft - pos1;
-    
-    const appRect = document.querySelector('.app').getBoundingClientRect();
-    const floatRect = dragElement.getBoundingClientRect();
-    const maxTop = appRect.height - floatRect.height - 10;
-    const minTop = 10;
-    const maxLeft = appRect.width - floatRect.width - 10;
-    const minLeft = 10;
-    
-    newTop = Math.min(Math.max(newTop, minTop), maxTop);
-    newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
-    
-    dragElement.style.top = newTop + 'px';
-    dragElement.style.left = newLeft + 'px';
-    dragElement.style.bottom = 'auto';
-    dragElement.style.right = 'auto';
-}
-
-function elementDragTouch(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    pos1 = pos3 - touch.clientX;
-    pos2 = pos4 - touch.clientY;
-    pos3 = touch.clientX;
-    pos4 = touch.clientY;
-    
-    let newTop = dragElement.offsetTop - pos2;
-    let newLeft = dragElement.offsetLeft - pos1;
-    
-    const appRect = document.querySelector('.app').getBoundingClientRect();
-    const floatRect = dragElement.getBoundingClientRect();
-    const maxTop = appRect.height - floatRect.height - 10;
-    const minTop = 10;
-    const maxLeft = appRect.width - floatRect.width - 10;
-    const minLeft = 10;
-    
-    newTop = Math.min(Math.max(newTop, minTop), maxTop);
-    newLeft = Math.min(Math.max(newLeft, minLeft), maxLeft);
-    
-    dragElement.style.top = newTop + 'px';
-    dragElement.style.left = newLeft + 'px';
-    dragElement.style.bottom = 'auto';
-    dragElement.style.right = 'auto';
-}
-
-function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-    document.ontouchend = null;
-    document.ontouchmove = null;
-}
-
-// SEARCH & ENGINE
-const searchInput = document.getElementById('searchInput');
-let currentEngine = "Google";
-
-function toggleEngineMenu(){
-    document.getElementById("engineMenu").classList.toggle("open");
-}
-
-function setEngine(engine){
-    currentEngine = engine;
-    document.getElementById("currentEngine").innerText = engine;
-    document.getElementById("engineMenu").classList.remove("open");
-}
-
-if (searchInput) {
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const query = this.value.trim();
-            if (!query) return;
-
-            let url = "";
-            switch(currentEngine){
-                case "Google": url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
-                case "Bing": url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`; break;
-                case "Wikipedia": url = `https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/ /g, '_'))}`; break;
-                case "YouTube": url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; break;
-                case "DuckDuckGo": url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`; break;
-                default: url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-            }
-            window.open(url, "_blank");
-        }
-    });
-}
-
-// THEME TOGGLE
-const themeToggle = document.getElementById('themeToggle');
-let isLightMode = false;
-
-themeToggle.addEventListener('click', function() {
-    isLightMode = !isLightMode;
-    const app = document.querySelector('.app');
-    if (isLightMode) {
-        app.style.background = '#fff';
-        app.style.color = '#000';
-        themeToggle.className = 'fas fa-moon';
-        document.querySelector('.overlay').style.background = 'rgba(255,255,255,0.2)';
-    } else {
-        app.style.background = '#000';
-        app.style.color = 'white';
-        themeToggle.className = 'fas fa-sun';
-        document.querySelector('.overlay').style.background = 'rgba(0,0,0,0.2)';
-    }
+closeChatbot.addEventListener('click', () => {
+    chatbotPanel.classList.remove('open');
 });
 
-// APP ICON ACTIONS
-document.querySelectorAll('.appicon').forEach((item) => {
-    item.addEventListener('click', function() {
-        const allIcons = [...document.querySelectorAll('.appicon')];
-        const idx = allIcons.indexOf(item);
-        const apps = ['facebook', 'youtube', 'instagram', 'spotify', 'twitter', 'tiktok', 'snapchat', 'pinterest'];
-        const urls = {
-            facebook: 'https://facebook.com',
-            youtube: 'https://youtube.com',
-            instagram: 'https://instagram.com',
-            spotify: 'https://open.spotify.com',
-            twitter: 'https://twitter.com',
-            tiktok: 'https://tiktok.com',
-            snapchat: 'https://snapchat.com',
-            pinterest: 'https://pinterest.com'
-        };
-        if (idx < apps.length) {
-            window.open(urls[apps[idx]], '_blank');
-        }
+function addMessage(text, type = 'bot') {
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function getRandomReply() {
+    const replies = [
+        "That's cool! Tell me more 😊",
+        "Interesting... what else?",
+        "I'm just a demo AI — real version coming soon!",
+        "Ask me about the weather or news!",
+        "Swift Browser is pretty fast, right? ⚡",
+        "Do you want to search something specific?",
+        "😄 Haha that's funny!",
+        "I'm learning every day — ask anything!",
+        "How's the day going in Cebu? 🌴"
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+}
+
+sendBtn.addEventListener('click', sendChatMessage);
+chatbotInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendChatMessage();
+});
+
+function sendChatMessage() {
+    const text = chatbotInput.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'user');
+    chatbotInput.value = '';
+
+    // simulate thinking
+    setTimeout(() => {
+        addMessage(getRandomReply());
+    }, 600 + Math.random() * 800);
+}
+
+// ────────────────────────────────────────────────
+// Search + engine selector
+let currentEngineValue = "Google";
+
+engineSelect.addEventListener('click', e => {
+    e.stopPropagation();
+    engineMenu.classList.toggle('open');
+});
+
+engineMenu.querySelectorAll('div').forEach(item => {
+    item.addEventListener('click', () => {
+        currentEngineValue = item.dataset.engine;
+        currentEngine.textContent = currentEngineValue;
+        engineMenu.classList.remove('open');
     });
 });
 
-// NEW TAB BUTTON
-const newTabButtons = document.querySelectorAll('.newtab button');
-if (newTabButtons.length >= 2) {
-    newTabButtons[0].addEventListener('click', () => window.open('about:blank', '_blank'));
-    newTabButtons[1].addEventListener('click', () => {
-        searchInput.value = '';
-        searchInput.focus();
-    });
-}
+searchInput.addEventListener('keypress', e => {
+    if (e.key !== 'Enter') return;
+    const q = searchInput.value.trim();
+    if (!q) return;
 
-// CLOSE ENGINE MENU ON OUTSIDE CLICK
-document.addEventListener("click", function(e){
-    const menu = document.getElementById("engineMenu");
-    const button = document.querySelector(".engine-select");
-    if (button && !button.contains(e.target) && menu && !menu.contains(e.target)) {
-        menu.classList.remove("open");
+    let url = '';
+    switch (currentEngineValue) {
+        case 'Google':      url = `https://www.google.com/search?q=${encodeURIComponent(q)}`; break;
+        case 'Bing':        url = `https://www.bing.com/search?q=${encodeURIComponent(q)}`; break;
+        case 'DuckDuckGo':  url = `https://duckduckgo.com/?q=${encodeURIComponent(q)}`; break;
+        case 'YouTube':     url = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`; break;
+        case 'Wikipedia':   url = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`; break;
+        default:            url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
     }
+    window.open(url, '_blank');
+});
+
+// ────────────────────────────────────────────────
+// App icons – open websites
+document.querySelectorAll('.appicon[data-url]').forEach(icon => {
+    icon.addEventListener('click', () => {
+        window.open(icon.dataset.url, '_blank');
+    });
+});
+
+// New tab + clear
+document.getElementById('newTabBtn').addEventListener('click', () => {
+    window.open('about:blank', '_blank');
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+    searchInput.value = '';
+    searchInput.focus();
 });
 
 </script>
