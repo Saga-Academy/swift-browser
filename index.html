@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swift Mobile Browser</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,Arial}
+
+body{
+background:#000;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.app{
+width:390px;
+height:844px;
+border-radius:28px;
+overflow:hidden;
+position:relative;
+color:white;
+padding-top:40px;
+background:none;
+}
+
+.bgvideo{
+position:absolute;
+width:100%;
+height:100%;
+object-fit:cover;
+top:0;
+left:0;
+z-index:0;
+}
+
+.overlay{
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.15);
+}
+
+.header{
+position:relative;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px 18px;
+font-size:18px;
+z-index:2;
+}
+
+.title{
+letter-spacing:4px;
+font-weight:600;
+}
+
+.controls{
+display:flex;
+gap:12px;
+padding:10px 16px;
+}
+
+.controls button{
+background:rgba(255,255,255,0.15);
+border:none;
+color:white;
+padding:10px 12px;
+border-radius:14px;
+font-size:16px;
+}
+
+.newtab{
+padding:10px 16px;
+display:flex;
+gap:10px;
+}
+
+.newtab button{
+border:none;
+padding:10px 16px;
+border-radius:14px;
+background:#8f79ff;
+color:white;
+font-weight:600;
+}
+
+.search{
+margin:14px 16px;
+background:rgba(255,255,255,0.2);
+border-radius:28px;
+padding:14px 18px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+backdrop-filter:blur(10px);
+}
+
+.search input{
+background:transparent;
+border:none;
+outline:none;
+color:white;
+width:100%;
+font-size:14px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+padding:20px;
+text-align:center;
+}
+
+.appicon{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:6px;
+font-size:13px;
+}
+
+.iconbox{
+width:58px;
+height:58px;
+border-radius:18px;
+display:flex;
+justify-content:center;
+align-items:center;
+background:rgba(255,255,255,0.25);
+backdrop-filter:blur(6px);
+font-size:22px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.iconbox:hover{
+transform:scale(1.08);
+}
+
+.footer{
+position:absolute;
+bottom:16px;
+left:0;
+right:0;
+display:flex;
+justify-content:center;
+}
+
+.badge{
+background:black;
+padding:8px 14px;
+border-radius:18px;
+font-size:12px;
+}
+
+.tabs{
+position:absolute;
+top:110px;
+left:0;
+right:0;
+display:flex;
+gap:6px;
+padding:6px 10px;
+overflow-x:auto;
+}
+
+.tab{
+background:rgba(255,255,255,0.2);
+padding:6px 12px;
+border-radius:10px;
+font-size:12px;
+white-space:nowrap;
+}
+
+/* SIDEBAR */
+.sidebar{
+position:absolute;
+top:0;
+left:-260px;
+width:260px;
+height:100%;
+background:rgba(20,20,20,0.95);
+backdrop-filter:blur(10px);
+padding-top:80px;
+transition:0.3s;
+z-index:5;
+}
+
+.sidebar.open{
+left:0;
+}
+
+.menuItem{
+padding:16px 22px;
+border-bottom:1px solid rgba(255,255,255,0.08);
+cursor:pointer;
+display:flex;
+align-items:center;
+gap:12px;
+font-size:15px;
+}
+
+.menuItem:hover{
+background:rgba(255,255,255,0.08);
+}
+
+.panel{
+position:absolute;
+top:0;
+right:-100%;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.95);
+transition:0.3s;
+padding:80px 20px;
+overflow:auto;
+z-index:6;
+}
+
+.panel.open{
+right:0;
+}
+
+.panel h2{
+margin-bottom:16px;
+}
+
+.item{
+padding:10px 0;
+border-bottom:1px solid rgba(255,255,255,0.1);
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<video class="bgvideo" autoplay muted loop playsinline>
+<source src="https://raw.githubusercontent.com/VTQIT/metal-gear-map/main/beach.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+<div class="menuItem" onclick="openPanel('bookmarks')">
+<i class="fa-solid fa-bookmark"></i> Bookmarks
+</div>
+
+<div class="menuItem" onclick="openPanel('history')">
+<i class="fa-solid fa-clock"></i> Recent History
+</div>
+
+<div class="menuItem" onclick="openPanel('about')">
+<i class="fa-solid fa-circle-info"></i> About
+</div>
+
+</div>
+
+<!-- PANELS -->
+
+<div class="panel" id="bookmarksPanel">
+<h2>Bookmarks</h2>
+<div id="bookmarkList"></div>
+</div>
+
+<div class="panel" id="historyPanel">
+<h2>Recent History</h2>
+<div id="historyList"></div>
+</div>
+
+<div class="panel" id="aboutPanel">
+<h2>About Swift</h2>
+<div class="item">Swift Mobile Browser UI</div>
+<div class="item">Lightweight HTML Browser Interface</div>
+<div class="item">Version 1.0</div>
+</div>
+
+<div class="header">
+<i class="fas fa-bars" onclick="toggleMenu()"></i>
+<div class="title">SWIFT</div>
+<i id="themeToggle" class="fas fa-sun" style="cursor:pointer"></i>
+</div>
+
+<div class="controls">
+<button onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+<button onclick="history.forward()"><i class="fas fa-arrow-right"></i></button>
+<button onclick="location.reload()"><i class="fas fa-rotate"></i></button>
+<button onclick="saveBookmark()"><i class="far fa-bookmark"></i></button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="newtab">
+<button onclick="newTab()">New Tab</button>
+<button onclick="newTab()">+</button>
+</div>
+
+<div class="search">
+<input id="searchInput" placeholder="Search the World Wide Web">
+<div>Internet ▾</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="footer">
+<div class="badge">⚡ Made with Emergent</div>
+</div>
+
+</div>
+
+<script>
+
+const sidebar=document.getElementById('sidebar')
+
+function toggleMenu(){
+sidebar.classList.toggle('open')
+}
+
+function openPanel(type){
+closePanels()
+
+if(type==='bookmarks'){
+document.getElementById('bookmarksPanel').classList.add('open')
+loadBookmarks()
+}
+
+if(type==='history'){
+document.getElementById('historyPanel').classList.add('open')
+loadHistory()
+}
+
+if(type==='about'){
+document.getElementById('aboutPanel').classList.add('open')
+}
+}
+
+function closePanels(){
+
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'))
+}
+
+
+const apps=[
+{name:'Facebook',icon:'fab fa-facebook',url:'https://facebook.com'},
+{name:'YouTube',icon:'fab fa-youtube',url:'https://youtube.com'},
+{name:'Instagram',icon:'fab fa-instagram',url:'https://instagram.com'},
+{name:'Spotify',icon:'fab fa-spotify',url:'https://spotify.com'},
+{name:'Wikipedia',icon:'fa-brands fa-wikipedia-w',url:'https://wikipedia.org'},
+{name:'DeepSeek',icon:'fa-solid fa-brain',url:'https://chat.deepseek.com'},
+{name:'Grok',icon:'fa-solid fa-robot',url:'https://grok.x.ai'},
+{name:'CNN',icon:'fa-solid fa-newspaper',url:'https://cnn.com'}
+]
+
+const grid=document.getElementById('grid')
+
+apps.forEach(app=>{
+const div=document.createElement('div')
+div.className='appicon'
+
+div.innerHTML=`
+<div class="iconbox"><i class="${app.icon}"></i></div>
+<div>${app.name}</div>
+`
+
+div.onclick=()=>{
+window.open(app.url,'_blank')
+saveHistory(app.url)
+}
+
+grid.appendChild(div)
+})
+
+
+const search=document.getElementById('searchInput')
+
+search.addEventListener('keydown',e=>{
+if(e.key==='Enter'){
+const q=search.value.trim()
+if(q){
+const url='https://www.google.com/search?q='+encodeURIComponent(q)
+window.open(url,'_blank')
+addTab(q)
+saveHistory(url)
+}
+}
+})
+
+
+const tabsContainer=document.getElementById('tabs')
+
+function newTab(){
+addTab('New Tab')
+}
+
+function addTab(name){
+const tab=document.createElement('div')
+tab.className='tab'
+tab.textContent=name
+
+tabsContainer.appendChild(tab)
+}
+
+
+function saveBookmark(){
+const q=search.value
+if(!q) return
+
+let bookmarks=JSON.parse(localStorage.getItem('swiftBookmarks')||'[]')
+bookmarks.push(q)
+localStorage.setItem('swiftBookmarks',JSON.stringify(bookmarks))
+
+alert('Bookmark saved')
+}
+
+function loadBookmarks(){
+const list=document.getElementById('bookmarkList')
+list.innerHTML=''
+
+let bookmarks=JSON.parse(localStorage.getItem('swiftBookmarks')||'[]')
+
+bookmarks.forEach(b=>{
+let div=document.createElement('div')
+div.className='item'
+div.textContent=b
+list.appendChild(div)
+})
+}
+
+
+function saveHistory(url){
+let history=JSON.parse(localStorage.getItem('swiftHistory')||'[]')
+history.unshift(url)
+localStorage.setItem('swiftHistory',JSON.stringify(history.slice(0,50)))
+}
+
+function loadHistory(){
+const list=document.getElementById('historyList')
+list.innerHTML=''
+
+let history=JSON.parse(localStorage.getItem('swiftHistory')||'[]')
+
+history.forEach(h=>{
+let div=document.createElement('div')
+div.className='item'
+div.textContent=h
+list.appendChild(div)
+})
+}
+
+
+const themeBtn=document.getElementById('themeToggle')
+
+let dark=false
+
+themeBtn.onclick=()=>{
+dark=!dark
+
+document.body.style.background=dark?'#111':'#000'
+}
+
+</script>
+
+</body>
+</html>
