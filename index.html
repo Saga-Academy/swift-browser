@@ -606,38 +606,33 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
         });
     }
 
+    function doSearch() {
+        const q = els.searchInput ? els.searchInput.value.trim() : '';
+        if (!q) return;
+        const engines = {
+            'Google': `https://www.google.com/search?q=${encodeURIComponent(q)}`,
+            'Bing': `https://www.bing.com/search?q=${encodeURIComponent(q)}`,
+            'DuckDuckGo': `https://duckduckgo.com/?q=${encodeURIComponent(q)}`,
+            'Wikipedia': `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`,
+            'Grokipedia': `https://www.grokipedia.org/?search=${encodeURIComponent(q)}`,
+            'Internet': `https://www.google.com/search?q=${encodeURIComponent(q)}`,
+            'Decentralized Cortex': `https://cortex.search/?q=${encodeURIComponent(q)}`,
+            'Local Drive': `local-search://${encodeURIComponent(q)}`,
+            'ChatGPT': `https://chat.openai.com/?q=${encodeURIComponent(q)}`,
+            'Claude': `https://claude.ai/new?q=${encodeURIComponent(q)}`,
+            'Grok': `https://grok.x.ai/?q=${encodeURIComponent(q)}`,
+            'DeepSeek': `https://www.deepseek.com/?q=${encodeURIComponent(q)}`,
+            'Instagram': `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(q)}`,
+            'Spotify': `https://open.spotify.com/search/${encodeURIComponent(q)}`,
+            'Deja': `https://deja.com/search?q=${encodeURIComponent(q)}`,
+            'YouTube': `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`
+        };
+        window.open(engines[currentEngineValue] || engines['Google'], '_blank');
+    }
+
     if (els.searchInput) {
         els.searchInput.addEventListener('keypress', e => {
-            if (e.key !== 'Enter') return;
-            const q = els.searchInput.value.trim();
-            if (!q) return;
-            let url = '';
-            switch (currentEngineValue) {
-                // Search Engines
-                case 'Google': url = `https://www.google.com/search?q=${encodeURIComponent(q)}`; break;
-                case 'Bing': url = `https://www.bing.com/search?q=${encodeURIComponent(q)}`; break;
-                case 'DuckDuckGo': url = `https://duckduckgo.com/?q=${encodeURIComponent(q)}`; break;
-                case 'Wikipedia': url = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`; break;
-                case 'Grokipedia': url = `https://www.grokipedia.org/?search=${encodeURIComponent(q)}`; break;
-                case 'Internet': url = `https://www.google.com/search?q=${encodeURIComponent(q)}`; break;
-                case 'Decentralized Cortex': url = `https://cortex.search/?q=${encodeURIComponent(q)}`; break;
-                case 'Local Drive': url = `local-search://${encodeURIComponent(q)}`; break;
-                
-                // AI Suites
-                case 'ChatGPT': url = `https://chat.openai.com/?q=${encodeURIComponent(q)}`; break;
-                case 'Claude': url = `https://claude.ai/new?q=${encodeURIComponent(q)}`; break;
-                case 'Grok': url = `https://grok.x.ai/?q=${encodeURIComponent(q)}`; break;
-                case 'DeepSeek': url = `https://www.deepseek.com/?q=${encodeURIComponent(q)}`; break;
-                
-                // Social & Music
-                case 'Instagram': url = `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(q)}`; break;
-                case 'Spotify': url = `https://open.spotify.com/search/${encodeURIComponent(q)}`; break;
-                case 'Deja': url = `https://deja.com/search?q=${encodeURIComponent(q)}`; break;
-                case 'YouTube': url = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`; break;
-                
-                default: url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
-            }
-            window.open(url, '_blank');
+            if (e.key === 'Enter') doSearch();
         });
     }
     // ---------- APP ICONS : GUARANTEED CLICKABLE ----------
@@ -667,11 +662,34 @@ body { background:#000; height:100vh; display:flex; justify-content:center; alig
     const searchBtn = document.getElementById('searchBtn');
     if (searchBtn) {
         searchBtn.addEventListener('click', () => {
-            const q = els.searchInput.value.trim();
-            if (!q) { els.searchInput.focus(); return; }
-            els.searchInput.dispatchEvent(Object.assign(new KeyboardEvent('keypress', {bubbles:true}), {key:'Enter'}));
+            if (els.searchInput && els.searchInput.value.trim()) doSearch();
+            else if (els.searchInput) els.searchInput.focus();
         });
     }
+
+    // ---------- SIDEBAR MENU ITEMS ----------
+    const sidebarActions = {
+        'Bookmarks': () => alert('📌 No bookmarks saved yet.'),
+        'History':   () => alert('🕓 No browsing history yet.'),
+        'Downloads': () => alert('📥 No downloads yet.'),
+        'Settings':  () => alert('⚙️ Settings coming soon.'),
+        'About':     () => alert('⚡ Swift Browser v1.0\nBuilt with Swift AI.')
+    };
+    document.querySelectorAll('.menuItem').forEach(item => {
+        const label = item.textContent.trim();
+        item.addEventListener('click', () => {
+            const fn = Object.entries(sidebarActions).find(([k]) => label.includes(k));
+            if (fn) fn[1]();
+            els.sidebar.classList.remove('open');
+            els.overlay.classList.remove('active');
+        });
+    });
+
+    // ---------- BACK / FORWARD / REFRESH ----------
+    const [backBtn, fwdBtn, refreshBtn] = document.querySelectorAll('.controls button');
+    if (backBtn)    backBtn.addEventListener('click',    () => history.back());
+    if (fwdBtn)     fwdBtn.addEventListener('click',     () => history.forward());
+    if (refreshBtn) refreshBtn.addEventListener('click', () => location.reload());
 
     // ---------- NEW TAB / CLEAR ----------
     if (els.newTabBtn) {
